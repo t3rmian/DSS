@@ -11,7 +11,7 @@ public class Parser {
 
     private final BufferedReader reader;
     private String[] header;
-    private List<Float[]> values = new ArrayList<>();
+    private List<float[]> values = new ArrayList<>();
     private List<String> classes = new ArrayList<>();
     private int classesColumnIndex;
 
@@ -23,8 +23,8 @@ public class Parser {
         return header;
     }
 
-    public Float[][] getValues() {
-        return values.toArray(new Float[0][0]);
+    public float[][] getValues() {
+        return values.toArray(new float[0][0]);
     }
 
     public String[] getClasses() {
@@ -61,7 +61,7 @@ public class Parser {
                 header = line.split(" ");
             } else {
                 String[] values = line.split(" ");
-                Float[] dataRow = new Float[values.length - 1];
+                float[] dataRow = new float[values.length - 1];
                 int dataRowIndex = 0;
                 for (String value : values) {
                     try {
