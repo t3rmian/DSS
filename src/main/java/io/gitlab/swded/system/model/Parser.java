@@ -1,4 +1,4 @@
-package io.gitlab.swded.system;
+package io.gitlab.swded.system.model;
 
 import java.io.BufferedReader;
 import java.io.IOException;

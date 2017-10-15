@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.StackPane?>
+<TableView fx:controller="io.gitlab.swded.system.controller.TableController" fx:id="table" editable="true" prefHeight="200.0"
+           prefWidth="200.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+    <opaqueInsets>
+        <Insets/>
+    </opaqueInsets>
+    <StackPane.margin>
+        <Insets top="25.0"/>
+    </StackPane.margin>
+</TableView>
