@@ -11,8 +11,33 @@ public class Parser {
 
     private final BufferedReader reader;
     private String[] header;
-    private List<Float[]> data = new ArrayList<>();
+    private List<Float[]> values = new ArrayList<>();
     private List<String> classes = new ArrayList<>();
+    private int classesColumnIndex;
+
+    public int getClassesColumnIndex() {
+        return classesColumnIndex;
+    }
+
+    public String[] getHeader() {
+        return header;
+    }
+
+    public Float[][] getValues() {
+        return values.toArray(new Float[0][0]);
+    }
+
+    public String[] getClasses() {
+        return classes.toArray(new String[0]);
+    }
+
+    public Data[] getData() {
+        Data[] data = new Data[values.size()];
+        for (int i = 0; i < values.size(); i++) {
+            data[i] = new Data(values.get(i), classes.get(i));
+        }
+        return data;
+    }
 
     public Parser(BufferedReader reader) {
         this.reader = reader;
@@ -43,10 +68,11 @@ public class Parser {
                         dataRow[dataRowIndex] = Float.parseFloat(value);
                         dataRowIndex++;
                     } catch (NumberFormatException nfe) {
+                        classesColumnIndex = dataRowIndex;
                         classes.add(value);
                     }
                 }
-                data.add(dataRow);
+                this.values.add(dataRow);
             }
         }
     }
