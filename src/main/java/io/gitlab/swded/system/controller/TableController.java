@@ -49,6 +49,18 @@ public class TableController {
 
     private TableColumn<DataRow, Number> createNumericColumn(String header, int columnIndex) {
         TableColumn<DataRow, Number> valueColumn = new TableColumn<>(header);
+        Label columnHeader = new Label(header);
+        valueColumn.setGraphic(columnHeader);
+        valueColumn.setSortable(false);
+        columnHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+            if (mouseEvent.getButton() == MouseButton.SECONDARY) {
+                mouseEvent.consume();
+                ContextMenu contextMenu = createNumericContextMenu(columnIndex);
+                valueColumn.setContextMenu(contextMenu);
+            } else {
+                enableSortingForAWhile(valueColumn);
+            }
+        });
         valueColumn.setCellValueFactory(p -> p.getValue().getValue(columnIndex).valueProperty());
         valueColumn.setCellFactory(TextFieldTableCell.forTableColumn(new NumberStringConverter()));
         return valueColumn;
@@ -62,7 +74,7 @@ public class TableController {
         columnHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY) {
                 mouseEvent.consume();
-                ContextMenu contextMenu = createContextMenu(columnIndex);
+                ContextMenu contextMenu = createTextContextMenu(columnIndex);
                 textColumn.setContextMenu(contextMenu);
             } else {
                 enableSortingForAWhile(textColumn);
@@ -73,34 +85,91 @@ public class TableController {
         return textColumn;
     }
 
-    private ContextMenu createContextMenu(int textColumn) {
+
+    private ContextMenu createNumericContextMenu(int columnIndex) {
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem toNumeric = new MenuItem("To numeric");
+        MenuItem toNumeric = new MenuItem("Discretization");
         toNumeric.setOnAction(event -> {
-            toNumeric(textColumn);
+            toDiscrete(columnIndex);
         });
         contextMenu.getItems().add(toNumeric);
         contextMenu.setAutoHide(true);
         return contextMenu;
     }
 
-    private void toNumeric(int textColumn) {
+    private void toDiscrete(int columnIndex) {
+        TextInputDialog inputDialog = new TextInputDialog("0");
+        TextField editor = inputDialog.getEditor();
+        editor.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                editor.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
+        inputDialog.setTitle("Discretization");
+        inputDialog.setHeaderText(null);
+        inputDialog.setContentText("Number of subdivisions");
+        int divisionsCount = Integer.parseInt(inputDialog.showAndWait().orElse("0"));
+        if (divisionsCount <= 0) {
+            return;
+        }
+        float min = 0;
+        float max = 0;
+        for (DataRow row : observableList) {
+            float value = row.getValue(columnIndex).getValue();
+            min = Math.min(min, value);
+            max = Math.max(max, value);
+        }
+        float range = max - min;
+        float divisionRange = range / divisionsCount;
+        float[] thresholds = new float[divisionsCount];
+        thresholds[0] = min + divisionRange;
+        for (int i = 1; i < thresholds.length; i++) {
+            thresholds[i] = thresholds[i - 1] + divisionRange;
+        }
+        if (range == 0) {
+            return;
+        }
+        for (DataRow row : observableList) {
+            float value = row.getValue(columnIndex).getValue();
+            for (int i = 0; i < thresholds.length; i++) {
+                if (value <= thresholds[i]) {
+                    row.addValue(new Value(i));
+                    break;
+                }
+            }
+        }
+        TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[columnIndex] + "_DISC", table.getColumns().size());
+        table.getColumns().add(numericColumn);
+    }
+
+    private ContextMenu createTextContextMenu(int columnIndex) {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem toNumeric = new MenuItem("To numeric");
+        toNumeric.setOnAction(event -> {
+            toNumeric(columnIndex);
+        });
+        contextMenu.getItems().add(toNumeric);
+        contextMenu.setAutoHide(true);
+        return contextMenu;
+    }
+
+    private void toNumeric(int columnIndex) {
         List<String> texts = new ArrayList<>();
         for (DataRow row : observableList) {
-            String text = row.getValue(textColumn).getText();
+            String text = row.getValue(columnIndex).getText();
             if (!texts.contains(text)) {
                 texts.add(text);
             }
         }
         for (DataRow row : observableList) {
-            String text = row.getValue(textColumn).getText();
+            String text = row.getValue(columnIndex).getText();
             row.addValue(new Value(texts.indexOf(text) + 1));
         }
-        TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[textColumn] + "_NUM", table.getColumns().size());
+        TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[columnIndex] + "_NUM", table.getColumns().size());
         table.getColumns().add(numericColumn);
     }
 
-    private void enableSortingForAWhile(TableColumn<DataRow, String> textColumn) {
+    private void enableSortingForAWhile(TableColumn<DataRow, ?> textColumn) {
         table.getSortOrder().add(textColumn);
         textColumn.setSortable(true);
         new Thread(() -> {
