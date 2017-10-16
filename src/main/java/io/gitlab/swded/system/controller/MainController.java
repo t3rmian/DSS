@@ -3,6 +3,7 @@ package io.gitlab.swded.system.controller;
 import io.gitlab.swded.system.model.Parser;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -11,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Optional;
 
 public class MainController {
 
@@ -30,8 +32,16 @@ public class MainController {
 
     private void readFile(File file) {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
-            Parser parser = new Parser(bufferedReader);
-            parser.parse();
+            Alert questionAlert = new Alert(Alert.AlertType.CONFIRMATION, "Is header row present in the file?", ButtonType.NO, ButtonType.YES);
+            questionAlert.initOwner(getWindow());
+            questionAlert.setTitle("Header");
+            Optional<ButtonType> buttonType = questionAlert.showAndWait();
+            boolean headerPresent = false;
+            if (buttonType.isPresent() && buttonType.get() == ButtonType.YES) {
+                headerPresent = true;
+            }
+            Parser parser = new Parser(headerPresent);
+            parser.parse(bufferedReader);
             tableController.displayData(parser);
         } catch (IOException e) {
             e.printStackTrace();

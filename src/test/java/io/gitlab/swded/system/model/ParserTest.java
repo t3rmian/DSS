@@ -12,8 +12,8 @@ public class ParserTest {
     public void parse() {
         String dataSetName = "IRISDAT.TXT";
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(dataSetName)))) {
-            Parser parser = new Parser(bufferedReader);
-            parser.parse();
+            Parser parser = new Parser(true);
+            parser.parse(bufferedReader);
         } catch (IOException e) {
             e.printStackTrace();
         }
