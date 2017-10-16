@@ -18,6 +18,10 @@ public class Value {
         }
     }
 
+    public Value(int value) {
+        this.value = new SimpleFloatProperty(value);
+    }
+
     public boolean isNumber() {
         return value != null;
     }

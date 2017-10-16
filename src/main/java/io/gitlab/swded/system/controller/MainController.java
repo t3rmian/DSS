@@ -29,8 +29,10 @@ public class MainController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
         File file = fileChooser.showOpenDialog(getWindow());
-        System.out.println("Opening file: " + file.getAbsolutePath());
-        readFile(file);
+        if (file != null) {
+            System.out.println("Opening file: " + file.getAbsolutePath());
+            readFile(file);
+        }
     }
 
     private void readFile(File file) {

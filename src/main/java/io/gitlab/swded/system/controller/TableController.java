@@ -3,15 +3,19 @@ package io.gitlab.swded.system.controller;
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.Parser;
 import io.gitlab.swded.system.model.Value;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.NumberStringConverter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TableController {
 
@@ -19,11 +23,12 @@ public class TableController {
     private TableView<DataRow> table;
     private ObservableList<DataRow> observableList = FXCollections.observableArrayList();
     private TableColumn<DataRow, ?>[] valueColumns;
+    private String[] header;
 
     void displayData(Parser parser) {
         DataRow[] dataRows = parser.getData();
         DataRow firstDataRow = dataRows[0];
-        String[] header = parser.getHeader();
+        header = parser.getHeader();
         if (header == null) {
             header = askUserForHeader(firstDataRow.size());
         }
@@ -31,22 +36,83 @@ public class TableController {
         valueColumns = new TableColumn[header.length];
         for (int i = 0; i < header.length; i++) {
             Value firstColumnValue = firstDataRow.getValue(i);
-            final int columnIndex = i;
             if (firstColumnValue.isNumber()) {
-                TableColumn<DataRow, Number> valueColumn = new TableColumn<>(header[i]);
-                valueColumn.setCellValueFactory(p -> p.getValue().getValue(columnIndex).valueProperty());
-                valueColumn.setCellFactory(TextFieldTableCell.forTableColumn(new NumberStringConverter()));
-                valueColumns[i] = valueColumn;
+                valueColumns[i] = createNumericColumn(header[i], i);
             } else {
-                TableColumn<DataRow, String> textColumn = new TableColumn<>(header[i]);
-                textColumn.setCellValueFactory(p -> p.getValue().getValue(columnIndex).textProperty());
-                textColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
-                valueColumns[i] = textColumn;
+                valueColumns[i] = createTextColumn(header[i], i);
             }
         }
         table.getColumns().addAll(valueColumns);
         observableList.addAll(dataRows);
         table.setItems(observableList);
+    }
+
+    private TableColumn<DataRow, Number> createNumericColumn(String header, int columnIndex) {
+        TableColumn<DataRow, Number> valueColumn = new TableColumn<>(header);
+        valueColumn.setCellValueFactory(p -> p.getValue().getValue(columnIndex).valueProperty());
+        valueColumn.setCellFactory(TextFieldTableCell.forTableColumn(new NumberStringConverter()));
+        return valueColumn;
+    }
+
+    private TableColumn<DataRow, String> createTextColumn(String header, int columnIndex) {
+        TableColumn<DataRow, String> textColumn = new TableColumn<>();
+        Label columnHeader = new Label(header);
+        textColumn.setGraphic(columnHeader);
+        textColumn.setSortable(false);
+        columnHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+            if (mouseEvent.getButton() == MouseButton.SECONDARY) {
+                mouseEvent.consume();
+                ContextMenu contextMenu = createContextMenu(columnIndex);
+                textColumn.setContextMenu(contextMenu);
+            } else {
+                enableSortingForAWhile(textColumn);
+            }
+        });
+        textColumn.setCellValueFactory(p -> p.getValue().getValue(columnIndex).textProperty());
+        textColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DefaultStringConverter()));
+        return textColumn;
+    }
+
+    private ContextMenu createContextMenu(int textColumn) {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem toNumeric = new MenuItem("To numeric");
+        toNumeric.setOnAction(event -> {
+            toNumeric(textColumn);
+        });
+        contextMenu.getItems().add(toNumeric);
+        contextMenu.setAutoHide(true);
+        return contextMenu;
+    }
+
+    private void toNumeric(int textColumn) {
+        List<String> texts = new ArrayList<>();
+        for (DataRow row : observableList) {
+            String text = row.getValue(textColumn).getText();
+            if (!texts.contains(text)) {
+                texts.add(text);
+            }
+        }
+        for (DataRow row : observableList) {
+            String text = row.getValue(textColumn).getText();
+            row.addValue(new Value(texts.indexOf(text) + 1));
+        }
+        TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[textColumn] + "_NUM", table.getColumns().size());
+        table.getColumns().add(numericColumn);
+    }
+
+    private void enableSortingForAWhile(TableColumn<DataRow, String> textColumn) {
+        table.getSortOrder().add(textColumn);
+        textColumn.setSortable(true);
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Platform.runLater(() -> {
+                textColumn.setSortable(false);
+            });
+        }).start();
     }
 
     private String[] askUserForHeader(int size) {

@@ -1,25 +1,30 @@
 package io.gitlab.swded.system.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DataRow {
-    Value[] values;
+    List<Value> values = new ArrayList<>();
 
     public DataRow(String[] values) {
-        this.values = new Value[values.length];
         for (int i = 0; i < values.length; i++) {
-            this.values[i] = new Value(values[i]);
+            this.values.add(new Value(values[i]));
         }
     }
 
-    public Value[] getValues() {
+    public List<Value> getValues() {
         return values;
     }
 
     public Value getValue(int i) {
-        return values[i];
+        return values.get(i);
     }
 
     public int size() {
-        return values.length;
+        return values.size();
     }
 
+    public void addValue(Value value) {
+        values.add(value);
+    }
 }
