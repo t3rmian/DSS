@@ -7,15 +7,21 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.util.Pair;
+import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.UnaryOperator;
+import java.util.regex.Pattern;
 
 public class TableController {
 
@@ -96,9 +102,107 @@ public class TableController {
         normalize.setOnAction(event -> {
             normalize(columnIndex);
         });
-        contextMenu.getItems().addAll(toDiscrete, normalize);
+        MenuItem setInterval = new MenuItem("Interval");
+        setInterval.setOnAction(event -> {
+            setInterval(columnIndex);
+        });
+        contextMenu.getItems().addAll(toDiscrete, normalize, setInterval);
         contextMenu.setAutoHide(true);
         return contextMenu;
+    }
+
+    private void setInterval(int columnIndex) {
+        Dialog<Pair<Double, Double>> intervalDialog = createIntervalDialog();
+        intervalDialog.showAndWait()
+                .ifPresent(newRange -> {
+                    double min = Double.MAX_VALUE;
+                    double max = Double.MIN_VALUE;
+                    for (DataRow row : data) {
+                        double value = row.getValue(columnIndex).getValue();
+                        min = Math.min(min, value);
+                        max = Math.max(max, value);
+                    }
+                    double previousRange = max - min;
+                    double rangeScale = (newRange.getValue() - newRange.getKey()) / previousRange;
+                    double currentMin = min;
+                    data.forEach(row -> {
+                        double value = row.getValue(columnIndex).getValue();
+                        double newValue = (value - currentMin) * rangeScale + newRange.getKey();
+                        row.addValue(new Value(newValue));
+                    });
+                    TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[columnIndex] + "_INTERVAL", table.getColumns().size());
+                    table.getColumns().add(numericColumn);
+                });
+    }
+
+    private Dialog<Pair<Double, Double>> createIntervalDialog() {
+        Dialog<Pair<Double, Double>> dialog = new Dialog<>();
+        dialog.setTitle("Interval");
+        dialog.setHeaderText(null);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(20, 10, 10, 10));
+
+        TextField from = new TextField();
+        from.setPromptText("From");
+        from.setTextFormatter(createDoubleTextFormatter());
+        TextField to = new TextField();
+        to.setPromptText("To");
+        to.setTextFormatter(createDoubleTextFormatter());
+
+        gridPane.add(new Label("From:"), 0, 0);
+        gridPane.add(from, 1, 0);
+        gridPane.add(new Label("To:"), 2, 0);
+        gridPane.add(to, 3, 0);
+
+        dialog.getDialogPane().setContent(gridPane);
+        Platform.runLater(from::requestFocus);
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == ButtonType.OK) {
+                return new Pair<>(
+                        Double.parseDouble(from.getText()),
+                        Double.parseDouble(to.getText())
+                );
+            }
+            return null;
+        });
+        return dialog;
+    }
+
+    private TextFormatter<Double> createDoubleTextFormatter() {
+        Pattern validEditingState = Pattern.compile("-?(([1-9][0-9]*)|0)?(\\.[0-9]*)?");
+
+        UnaryOperator<TextFormatter.Change> filter = c -> {
+            String text = c.getControlNewText();
+            if (validEditingState.matcher(text).matches()) {
+                return c;
+            } else {
+                return null;
+            }
+        };
+
+        StringConverter<Double> converter = new StringConverter<Double>() {
+
+            @Override
+            public Double fromString(String s) {
+                if (s.isEmpty() || "-".equals(s) || ".".equals(s) || "-.".equals(s)) {
+                    return 0.0;
+                } else {
+                    return Double.valueOf(s);
+                }
+            }
+
+
+            @Override
+            public String toString(Double d) {
+                return d.toString();
+            }
+        };
+
+        return new TextFormatter<>(converter, 0.0, filter);
     }
 
     private void normalize(int columnIndex) {
@@ -107,7 +211,7 @@ public class TableController {
         double sd = data.stream().mapToDouble(row -> {
             double value = row.getValue(columnIndex).getValue();
             double diff = value - avg;
-            return diff*diff;
+            return diff * diff;
         }).sum() / (data.size() - 1);
         data.forEach(row -> {
             double x = row.getValue(columnIndex).getValue();
@@ -132,8 +236,8 @@ public class TableController {
         if (divisionsCount <= 0) {
             return;
         }
-        double min = 0;
-        double max = 0;
+        double min = Double.MAX_VALUE;
+        double max = Double.MIN_VALUE;
         for (DataRow row : data) {
             double value = row.getValue(columnIndex).getValue();
             min = Math.min(min, value);
