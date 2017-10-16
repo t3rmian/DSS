@@ -21,7 +21,7 @@ public class TableController {
 
     @FXML
     private TableView<DataRow> table;
-    private ObservableList<DataRow> observableList = FXCollections.observableArrayList();
+    private ObservableList<DataRow> data = FXCollections.observableArrayList();
     private TableColumn<DataRow, ?>[] valueColumns;
     private String[] header;
 
@@ -43,8 +43,8 @@ public class TableController {
             }
         }
         table.getColumns().addAll(valueColumns);
-        observableList.addAll(dataRows);
-        table.setItems(observableList);
+        data.addAll(dataRows);
+        table.setItems(data);
     }
 
     private TableColumn<DataRow, Number> createNumericColumn(String header, int columnIndex) {
@@ -88,13 +88,33 @@ public class TableController {
 
     private ContextMenu createNumericContextMenu(int columnIndex) {
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem toNumeric = new MenuItem("Discretization");
-        toNumeric.setOnAction(event -> {
+        MenuItem toDiscrete = new MenuItem("Discretization");
+        toDiscrete.setOnAction(event -> {
             toDiscrete(columnIndex);
         });
-        contextMenu.getItems().add(toNumeric);
+        MenuItem normalize = new MenuItem("Normalization");
+        normalize.setOnAction(event -> {
+            normalize(columnIndex);
+        });
+        contextMenu.getItems().addAll(toDiscrete, normalize);
         contextMenu.setAutoHide(true);
         return contextMenu;
+    }
+
+    private void normalize(int columnIndex) {
+        double sum = data.stream().mapToDouble(row -> row.getValue(columnIndex).getValue()).sum();
+        double avg = sum / data.size();
+        double sd = data.stream().mapToDouble(row -> {
+            double value = row.getValue(columnIndex).getValue();
+            double diff = value - avg;
+            return diff*diff;
+        }).sum() / (data.size() - 1);
+        data.forEach(row -> {
+            double x = row.getValue(columnIndex).getValue();
+            row.addValue(new Value((x - avg) / sd));
+        });
+        TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[columnIndex] + "_NORM", table.getColumns().size());
+        table.getColumns().add(numericColumn);
     }
 
     private void toDiscrete(int columnIndex) {
@@ -112,16 +132,16 @@ public class TableController {
         if (divisionsCount <= 0) {
             return;
         }
-        float min = 0;
-        float max = 0;
-        for (DataRow row : observableList) {
-            float value = row.getValue(columnIndex).getValue();
+        double min = 0;
+        double max = 0;
+        for (DataRow row : data) {
+            double value = row.getValue(columnIndex).getValue();
             min = Math.min(min, value);
             max = Math.max(max, value);
         }
-        float range = max - min;
-        float divisionRange = range / divisionsCount;
-        float[] thresholds = new float[divisionsCount];
+        double range = max - min;
+        double divisionRange = range / divisionsCount;
+        double[] thresholds = new double[divisionsCount];
         thresholds[0] = min + divisionRange;
         for (int i = 1; i < thresholds.length; i++) {
             thresholds[i] = thresholds[i - 1] + divisionRange;
@@ -129,8 +149,8 @@ public class TableController {
         if (range == 0) {
             return;
         }
-        for (DataRow row : observableList) {
-            float value = row.getValue(columnIndex).getValue();
+        for (DataRow row : data) {
+            double value = row.getValue(columnIndex).getValue();
             for (int i = 0; i < thresholds.length; i++) {
                 if (value <= thresholds[i]) {
                     row.addValue(new Value(i));
@@ -155,13 +175,13 @@ public class TableController {
 
     private void toNumeric(int columnIndex) {
         List<String> texts = new ArrayList<>();
-        for (DataRow row : observableList) {
+        for (DataRow row : data) {
             String text = row.getValue(columnIndex).getText();
             if (!texts.contains(text)) {
                 texts.add(text);
             }
         }
-        for (DataRow row : observableList) {
+        for (DataRow row : data) {
             String text = row.getValue(columnIndex).getText();
             row.addValue(new Value(texts.indexOf(text) + 1));
         }

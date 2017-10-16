@@ -1,17 +1,17 @@
 package io.gitlab.swded.system.model;
 
-import javafx.beans.property.FloatProperty;
-import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class Value {
     private StringProperty text;
-    private FloatProperty value;
+    private DoubleProperty value;
 
     public Value(String value) {
         try {
-            this.value = new SimpleFloatProperty(Float.parseFloat(value));
+            this.value = new SimpleDoubleProperty(Double.parseDouble(value));
         } catch (NumberFormatException nfe) {
         } finally {
             text = new SimpleStringProperty(value);
@@ -19,7 +19,11 @@ public class Value {
     }
 
     public Value(int value) {
-        this.value = new SimpleFloatProperty(value);
+        this.value = new SimpleDoubleProperty(value);
+    }
+
+    public Value(double value) {
+        this.value = new SimpleDoubleProperty(value);
     }
 
     public boolean isNumber() {
@@ -34,11 +38,11 @@ public class Value {
         return text;
     }
 
-    public float getValue() {
+    public double getValue() {
         return value.get();
     }
 
-    public FloatProperty valueProperty() {
+    public DoubleProperty valueProperty() {
         return value;
     }
 
@@ -46,7 +50,7 @@ public class Value {
         this.text.set(text);
     }
 
-    public void setValue(float value) {
+    public void setValue(double value) {
         this.value.set(value);
     }
 
