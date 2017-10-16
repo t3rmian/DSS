@@ -12,6 +12,7 @@ public class Value {
     public Value(String value) {
         try {
             this.value = new SimpleFloatProperty(Float.parseFloat(value));
+        } catch (NumberFormatException nfe) {
         } finally {
             text = new SimpleStringProperty(value);
         }

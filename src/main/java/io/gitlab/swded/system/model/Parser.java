@@ -35,6 +35,7 @@ public class Parser {
     }
 
     private void parseLine(String line) {
+        System.out.println("Line: " + line);
         if (line.startsWith("#")) {
             System.out.println(line);
         } else if (!line.isEmpty()) {
