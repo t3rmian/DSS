@@ -13,8 +13,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
-import java.util.Optional;
-
 public class TableController {
 
     @FXML
@@ -58,9 +56,9 @@ public class TableController {
             String defaultValue = "C" + number;
             TextInputDialog inputDialog = new TextInputDialog(defaultValue);
             inputDialog.setTitle("Header");
+            inputDialog.setHeaderText(null);
             inputDialog.setContentText("Header for column No. " + number);
-            Optional<String> input = inputDialog.showAndWait();
-            header[i] = input.orElse(defaultValue);
+            header[i] = inputDialog.showAndWait().orElse(defaultValue);
         }
         return header;
     }
