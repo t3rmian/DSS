@@ -13,13 +13,13 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
@@ -30,6 +30,8 @@ public class TableController {
     private ObservableList<DataRow> data = FXCollections.observableArrayList();
     private TableColumn<DataRow, ?>[] valueColumns;
     private String[] header;
+    private Map<Integer, List<DataRow>> minHighlights = new HashMap<>();
+    private Map<Integer, List<DataRow>> maxHighlights = new HashMap<>();
 
     void displayData(Parser parser) {
         DataRow[] dataRows = parser.getData();
@@ -58,17 +60,43 @@ public class TableController {
         Label columnHeader = new Label(header);
         valueColumn.setGraphic(columnHeader);
         valueColumn.setSortable(false);
-        columnHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+        columnHeader.addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY) {
-                mouseEvent.consume();
                 ContextMenu contextMenu = createNumericContextMenu(columnIndex);
-                valueColumn.setContextMenu(contextMenu);
+                contextMenu.show(table, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                table.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+                    contextMenu.hide();
+                });
+                mouseEvent.consume();
             } else {
                 enableSortingForAWhile(valueColumn);
             }
         });
         valueColumn.setCellValueFactory(p -> p.getValue().getValue(columnIndex).valueProperty());
-        valueColumn.setCellFactory(TextFieldTableCell.forTableColumn(new NumberStringConverter()));
+        valueColumn.setCellFactory(new Callback<TableColumn<DataRow, Number>, TableCell<DataRow, Number>>() {
+            @Override
+            public TableCell<DataRow, Number> call(TableColumn<DataRow, Number> param) {
+                return new TextFieldTableCell<DataRow, Number>(new NumberStringConverter()) {
+                    @Override
+                    public void updateItem(Number item, boolean empty) {
+                        super.updateItem(item, empty);
+                        this.getStyleClass().removeAll("min", "max");
+                        try {
+                            List<DataRow> rowsToHighlightMin = minHighlights.get(columnIndex);
+                            DataRow dataRow = (DataRow) this.getTableRow().getItem();
+                            if (rowsToHighlightMin != null && rowsToHighlightMin.contains(dataRow)) {
+                                this.getStyleClass().add("min");
+                            }
+                            List<DataRow> rowsToHighlightMax = maxHighlights.get(columnIndex);
+                            if (rowsToHighlightMax != null && rowsToHighlightMax.contains(dataRow)) {
+                                this.getStyleClass().add("max");
+                            }
+                        } catch (NullPointerException npe) {
+                        }
+                    }
+                };
+            }
+        });
         return valueColumn;
     }
 
@@ -77,11 +105,14 @@ public class TableController {
         Label columnHeader = new Label(header);
         textColumn.setGraphic(columnHeader);
         textColumn.setSortable(false);
-        columnHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+        columnHeader.addEventFilter(MouseEvent.MOUSE_PRESSED, mouseEvent -> {
             if (mouseEvent.getButton() == MouseButton.SECONDARY) {
-                mouseEvent.consume();
                 ContextMenu contextMenu = createTextContextMenu(columnIndex);
-                textColumn.setContextMenu(contextMenu);
+                contextMenu.show(table, mouseEvent.getScreenX(), mouseEvent.getScreenY());
+                table.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+                    contextMenu.hide();
+                });
+                mouseEvent.consume();
             } else {
                 enableSortingForAWhile(textColumn);
             }
@@ -106,9 +137,51 @@ public class TableController {
         setInterval.setOnAction(event -> {
             setInterval(columnIndex);
         });
-        contextMenu.getItems().addAll(toDiscrete, normalize, setInterval);
+        MenuItem showMinMax = new MenuItem("Highlight min/max");
+        showMinMax.setOnAction(event -> {
+            showMinMax(columnIndex);
+        });
+        contextMenu.getItems().addAll(toDiscrete, normalize, setInterval, showMinMax);
+        if (minHighlights.get(columnIndex) != null) {
+            MenuItem clearHighlights = new MenuItem("Clear highlights");
+            clearHighlights.setOnAction(event -> {
+                clearHighlights(columnIndex);
+            });
+            contextMenu.getItems().add(clearHighlights);
+        }
         contextMenu.setAutoHide(true);
+        contextMenu.setHideOnEscape(true);
         return contextMenu;
+    }
+
+    private void clearHighlights(int columnIndex) {
+        minHighlights.put(columnIndex, null);
+        maxHighlights.put(columnIndex, null);
+        table.refresh();
+    }
+
+    private void showMinMax(int columnIndex) {
+        TextInputDialog inputDialog = new TextInputDialog("0");
+        TextField editor = inputDialog.getEditor();
+        editor.setTextFormatter(createDoubleTextFormatter());
+        inputDialog.setTitle("Highlight min/max");
+        inputDialog.setHeaderText(null);
+        inputDialog.setContentText("Percentage of min(half) and max(half)");
+        inputDialog.showAndWait()
+                .filter(response -> Double.parseDouble(response) > 0)
+                .ifPresent(response -> {
+                    double percentage = Double.parseDouble(response) / 100;
+                    double halfPercentage = Math.max(percentage / 2, 0.5);
+                    int halfCases = (int) Math.round(halfPercentage * data.size());
+                    if (halfCases <= 0) {
+                        return;
+                    }
+                    data.sort(Comparator.comparingDouble(o -> o.getValue(columnIndex).getValue()));
+                    minHighlights.put(columnIndex, new LinkedList<>(data.subList(0, halfCases)));
+                    maxHighlights.put(columnIndex, new LinkedList<>(data.subList(data.size() - halfCases, data.size())));
+                    table.refresh();
+                });
+
     }
 
     private void setInterval(int columnIndex) {
@@ -298,7 +371,7 @@ public class TableController {
         textColumn.setSortable(true);
         new Thread(() -> {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(1500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

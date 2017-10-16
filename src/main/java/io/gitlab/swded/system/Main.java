@@ -2,19 +2,16 @@ package io.gitlab.swded.system;
 
 import io.gitlab.swded.system.controller.MainController;
 import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("main.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/main.fxml"));
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("SWD System");
         primaryStage.setScene(new Scene(root, 300, 275));
