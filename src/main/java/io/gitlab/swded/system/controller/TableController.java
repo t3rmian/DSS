@@ -1,34 +1,30 @@
 package io.gitlab.swded.system.controller;
 
+import io.gitlab.swded.system.formatter.DoubleTextFormatter;
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.Parser;
 import io.gitlab.swded.system.model.Value;
+import io.gitlab.swded.system.view.RangeDialog;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import javafx.util.Pair;
-import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
 import java.util.*;
-import java.util.function.UnaryOperator;
-import java.util.regex.Pattern;
 
 public class TableController {
 
     @FXML
     private TableView<DataRow> table;
     private ObservableList<DataRow> data = FXCollections.observableArrayList();
-    private TableColumn<DataRow, ?>[] valueColumns;
     private List<String> header;
     private Map<Integer, List<DataRow>> minHighlights = new HashMap<>();
     private Map<Integer, List<DataRow>> maxHighlights = new HashMap<>();
@@ -43,7 +39,7 @@ public class TableController {
         }
         this.header = new ArrayList<>(Arrays.asList(header));
         //noinspection unchecked
-        valueColumns = new TableColumn[header.length];
+        TableColumn<DataRow, ?>[] valueColumns = new TableColumn[header.length];
         for (int i = 0; i < header.length; i++) {
             Value firstColumnValue = firstDataRow.getValue(i);
             if (firstColumnValue.isNumber()) {
@@ -83,17 +79,18 @@ public class TableController {
                     public void updateItem(Number item, boolean empty) {
                         super.updateItem(item, empty);
                         this.getStyleClass().removeAll("min", "max");
-                        try {
-                            List<DataRow> rowsToHighlightMin = minHighlights.get(columnIndex);
-                            DataRow dataRow = (DataRow) this.getTableRow().getItem();
-                            if (rowsToHighlightMin != null && rowsToHighlightMin.contains(dataRow)) {
-                                this.getStyleClass().add("min");
-                            }
-                            List<DataRow> rowsToHighlightMax = maxHighlights.get(columnIndex);
-                            if (rowsToHighlightMax != null && rowsToHighlightMax.contains(dataRow)) {
-                                this.getStyleClass().add("max");
-                            }
-                        } catch (NullPointerException npe) {
+                        List<DataRow> rowsToHighlightMin = minHighlights.get(columnIndex);
+                        TableRow tableRow = this.getTableRow();
+                        if (tableRow == null) {
+                            return;
+                        }
+                        DataRow dataRow = (DataRow) tableRow.getItem();
+                        if (rowsToHighlightMin != null && rowsToHighlightMin.contains(dataRow)) {
+                            this.getStyleClass().add("min");
+                        }
+                        List<DataRow> rowsToHighlightMax = maxHighlights.get(columnIndex);
+                        if (rowsToHighlightMax != null && rowsToHighlightMax.contains(dataRow)) {
+                            this.getStyleClass().add("max");
                         }
                     }
                 };
@@ -127,15 +124,15 @@ public class TableController {
 
     private ContextMenu createNumericContextMenu(int columnIndex) {
         ContextMenu contextMenu = new ContextMenu();
-        MenuItem toDiscrete = new MenuItem("Discretization");
+        MenuItem toDiscrete = new MenuItem("Discretize");
         toDiscrete.setOnAction(event -> {
             toDiscrete(columnIndex);
         });
-        MenuItem normalize = new MenuItem("Normalization");
+        MenuItem normalize = new MenuItem("Normalize");
         normalize.setOnAction(event -> {
             normalize(columnIndex);
         });
-        MenuItem setInterval = new MenuItem("Interval");
+        MenuItem setInterval = new MenuItem("Change interval");
         setInterval.setOnAction(event -> {
             setInterval(columnIndex);
         });
@@ -165,7 +162,7 @@ public class TableController {
     private void showMinMax(int columnIndex) {
         TextInputDialog inputDialog = new TextInputDialog();
         TextField editor = inputDialog.getEditor();
-        editor.setTextFormatter(createDoubleTextFormatter());
+        editor.setTextFormatter(new DoubleTextFormatter());
         editor.setText(cache.minMax);
         inputDialog.setTitle("Highlight min/max");
         inputDialog.setHeaderText(null);
@@ -189,7 +186,7 @@ public class TableController {
     }
 
     private void setInterval(int columnIndex) {
-        Dialog<Pair<Double, Double>> intervalDialog = createIntervalDialog();
+        Dialog<Pair<Double, Double>> intervalDialog = new RangeDialog(cache.intervalFrom, cache.intervalTo);
         intervalDialog.showAndWait()
                 .ifPresent(newRange -> {
                     cache.intervalFrom = String.valueOf(newRange.getKey());
@@ -218,78 +215,6 @@ public class TableController {
         TableColumn<DataRow, Number> newColumn = createNumericColumn(columnHeader, table.getColumns().size());
         header.add(columnHeader);
         table.getColumns().add(newColumn);
-    }
-
-    private Dialog<Pair<Double, Double>> createIntervalDialog() {
-        Dialog<Pair<Double, Double>> dialog = new Dialog<>();
-        dialog.setTitle("Interval");
-        dialog.setHeaderText(null);
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setPadding(new Insets(20, 10, 10, 10));
-
-        TextField from = new TextField();
-        from.setPromptText("From");
-        from.setTextFormatter(createDoubleTextFormatter());
-        from.setText(cache.intervalFrom);
-        TextField to = new TextField();
-        to.setPromptText("To");
-        to.setTextFormatter(createDoubleTextFormatter());
-        to.setText(cache.intervalTo);
-
-        gridPane.add(new Label("From:"), 0, 0);
-        gridPane.add(from, 1, 0);
-        gridPane.add(new Label("To:"), 2, 0);
-        gridPane.add(to, 3, 0);
-
-        dialog.getDialogPane().setContent(gridPane);
-        Platform.runLater(from::requestFocus);
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
-                return new Pair<>(
-                        Double.parseDouble(from.getText()),
-                        Double.parseDouble(to.getText())
-                );
-            }
-            return null;
-        });
-        return dialog;
-    }
-
-    private TextFormatter<Double> createDoubleTextFormatter() {
-        Pattern validEditingState = Pattern.compile("-?(([1-9][0-9]*)|0)?(\\.[0-9]*)?");
-
-        UnaryOperator<TextFormatter.Change> filter = c -> {
-            String text = c.getControlNewText();
-            if (validEditingState.matcher(text).matches()) {
-                return c;
-            } else {
-                return null;
-            }
-        };
-
-        StringConverter<Double> converter = new StringConverter<Double>() {
-
-            @Override
-            public Double fromString(String s) {
-                if (s.isEmpty() || "-".equals(s) || ".".equals(s) || "-.".equals(s)) {
-                    return 0.0;
-                } else {
-                    return Double.valueOf(s);
-                }
-            }
-
-
-            @Override
-            public String toString(Double d) {
-                return d.toString();
-            }
-        };
-
-        return new TextFormatter<>(converter, 0.0, filter);
     }
 
     private void normalize(int columnIndex) {
