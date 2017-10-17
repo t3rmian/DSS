@@ -1,21 +1,27 @@
 package io.gitlab.swded.system.controller;
 
+import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.Parser;
+import io.gitlab.swded.system.view.Chart;
+import io.gitlab.swded.system.view.Chart2D;
+import io.gitlab.swded.system.view.Chart3D;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.input.*;
 import javafx.stage.FileChooser;
-import javafx.stage.StageStyle;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.io.*;
+import java.util.List;
 import java.util.Optional;
 
-public class MainController {
+public class MainController implements ChartInputController.ChartInputListener {
 
     @FXML
     private MenuBar menuBar;
@@ -104,9 +110,58 @@ public class MainController {
                 "Project and implementation of decision support system\n" +
                         "Systemy Wspomagania Decyzji / Eksploracja Danych\n" +
                         "Group: PS2\n" +
-                        "Authors: Maciej Borowik, Damian Terlecki");
+                        "Authors: Maciej Borowik, Damian Terlecki\n" +
+                        "\nTechnologies and components used:\nJavaFX, Maven, plotly.js (2d charts) + Jackson, jzy3d (3d charts)");
         infoAlert.setTitle("About");
         infoAlert.setHeaderText(null);
         infoAlert.show();
+    }
+
+    public void showHelp(ActionEvent actionEvent) {
+        Alert infoAlert = new Alert(Alert.AlertType.INFORMATION,
+                "Right click on column headers for operations.");
+        infoAlert.setTitle("Help");
+        infoAlert.setHeaderText(null);
+        infoAlert.show();
+    }
+
+    public void showChartInput(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/chartInput.fxml"));
+            Stage stage = new Stage();
+            stage.setTitle("2D Chart");
+            stage.setScene(new Scene(loader.load()));
+            stage.show();
+            ChartInputController chartInputController = loader.getController();
+            DataRow dataRow = tableController.getData().get(0);
+            List<String> header = tableController.getHeader();
+            chartInputController.setInputListener(this);
+            chartInputController.setData(dataRow, header);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onChartConfigSet(int classColumnIndex, int[] valueColumnIndexes) {
+        Chart chart;
+        if (valueColumnIndexes.length == 2) {
+            chart = new Chart2D(tableController.getData(), classColumnIndex, valueColumnIndexes, tableController.getHeader());
+        } else {
+            chart = new Chart3D(tableController.getData(), classColumnIndex, valueColumnIndexes, tableController.getHeader());
+        }
+        chart.show();
+    }
+
+    public void close(ActionEvent actionEvent) {
+        getStage().close();
+    }
+
+    public void reset(ActionEvent actionEvent) {
+        tableController.reset();
+    }
+
+    private Stage getStage() {
+        return (Stage)getWindow();
     }
 }

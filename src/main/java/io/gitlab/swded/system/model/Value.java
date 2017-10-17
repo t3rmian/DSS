@@ -31,6 +31,9 @@ public class Value {
     }
 
     public String getText() {
+        if (text == null) {
+            return value.toString();
+        }
         return text.get();
     }
 
@@ -39,7 +42,11 @@ public class Value {
     }
 
     public double getValue() {
-        return value.get();
+        try {
+            return value.get();
+        } catch (NullPointerException npe) {
+            return 0;
+        }
     }
 
     public DoubleProperty valueProperty() {

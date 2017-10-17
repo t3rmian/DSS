@@ -29,17 +29,19 @@ public class TableController {
     private TableView<DataRow> table;
     private ObservableList<DataRow> data = FXCollections.observableArrayList();
     private TableColumn<DataRow, ?>[] valueColumns;
-    private String[] header;
+    private List<String> header;
     private Map<Integer, List<DataRow>> minHighlights = new HashMap<>();
     private Map<Integer, List<DataRow>> maxHighlights = new HashMap<>();
+    private InputCache cache = new InputCache();
 
     void displayData(Parser parser) {
         DataRow[] dataRows = parser.getData();
         DataRow firstDataRow = dataRows[0];
-        header = parser.getHeader();
+        String[] header = parser.getHeader();
         if (header == null) {
             header = askUserForHeader(firstDataRow.size());
         }
+        this.header = new ArrayList<>(Arrays.asList(header));
         //noinspection unchecked
         valueColumns = new TableColumn[header.length];
         for (int i = 0; i < header.length; i++) {
@@ -161,17 +163,19 @@ public class TableController {
     }
 
     private void showMinMax(int columnIndex) {
-        TextInputDialog inputDialog = new TextInputDialog("0");
+        TextInputDialog inputDialog = new TextInputDialog();
         TextField editor = inputDialog.getEditor();
         editor.setTextFormatter(createDoubleTextFormatter());
+        editor.setText(cache.minMax);
         inputDialog.setTitle("Highlight min/max");
         inputDialog.setHeaderText(null);
-        inputDialog.setContentText("Percentage of min(half) and max(half)");
+        inputDialog.setContentText("Percentage (%) of min (half) and max (half)");
         inputDialog.showAndWait()
                 .filter(response -> Double.parseDouble(response) > 0)
                 .ifPresent(response -> {
+                    cache.minMax = response;
                     double percentage = Double.parseDouble(response) / 100;
-                    double halfPercentage = Math.max(percentage / 2, 0.5);
+                    double halfPercentage = Math.min(percentage / 2, 0.5);
                     int halfCases = (int) Math.round(halfPercentage * data.size());
                     if (halfCases <= 0) {
                         return;
@@ -188,6 +192,8 @@ public class TableController {
         Dialog<Pair<Double, Double>> intervalDialog = createIntervalDialog();
         intervalDialog.showAndWait()
                 .ifPresent(newRange -> {
+                    cache.intervalFrom = String.valueOf(newRange.getKey());
+                    cache.intervalTo = String.valueOf(newRange.getKey());
                     double min = Double.MAX_VALUE;
                     double max = Double.MIN_VALUE;
                     for (DataRow row : data) {
@@ -203,9 +209,15 @@ public class TableController {
                         double newValue = (value - currentMin) * rangeScale + newRange.getKey();
                         row.addValue(new Value(newValue));
                     });
-                    TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[columnIndex] + "_INTERVAL", table.getColumns().size());
-                    table.getColumns().add(numericColumn);
+                    addNewColumnBasedOn(columnIndex, "_INTERVAL");
                 });
+    }
+
+    private void addNewColumnBasedOn(int columnIndex, String postfix) {
+        String columnHeader = this.header.get(columnIndex) + postfix;
+        TableColumn<DataRow, Number> newColumn = createNumericColumn(columnHeader, table.getColumns().size());
+        header.add(columnHeader);
+        table.getColumns().add(newColumn);
     }
 
     private Dialog<Pair<Double, Double>> createIntervalDialog() {
@@ -222,9 +234,11 @@ public class TableController {
         TextField from = new TextField();
         from.setPromptText("From");
         from.setTextFormatter(createDoubleTextFormatter());
+        from.setText(cache.intervalFrom);
         TextField to = new TextField();
         to.setPromptText("To");
         to.setTextFormatter(createDoubleTextFormatter());
+        to.setText(cache.intervalTo);
 
         gridPane.add(new Label("From:"), 0, 0);
         gridPane.add(from, 1, 0);
@@ -290,12 +304,11 @@ public class TableController {
             double x = row.getValue(columnIndex).getValue();
             row.addValue(new Value((x - avg) / sd));
         });
-        TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[columnIndex] + "_NORM", table.getColumns().size());
-        table.getColumns().add(numericColumn);
+        addNewColumnBasedOn(columnIndex, "_NORM");
     }
 
     private void toDiscrete(int columnIndex) {
-        TextInputDialog inputDialog = new TextInputDialog("0");
+        TextInputDialog inputDialog = new TextInputDialog(cache.toDiscreteInput);
         TextField editor = inputDialog.getEditor();
         editor.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
@@ -306,6 +319,7 @@ public class TableController {
         inputDialog.setHeaderText(null);
         inputDialog.setContentText("Number of subdivisions");
         int divisionsCount = Integer.parseInt(inputDialog.showAndWait().orElse("0"));
+        cache.toDiscreteInput = String.valueOf(divisionsCount);
         if (divisionsCount <= 0) {
             return;
         }
@@ -335,8 +349,7 @@ public class TableController {
                 }
             }
         }
-        TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[columnIndex] + "_DISC", table.getColumns().size());
-        table.getColumns().add(numericColumn);
+        addNewColumnBasedOn(columnIndex, "_DISC");
     }
 
     private ContextMenu createTextContextMenu(int columnIndex) {
@@ -362,8 +375,7 @@ public class TableController {
             String text = row.getValue(columnIndex).getText();
             row.addValue(new Value(texts.indexOf(text) + 1));
         }
-        TableColumn<DataRow, Number> numericColumn = createNumericColumn(header[columnIndex] + "_NUM", table.getColumns().size());
-        table.getColumns().add(numericColumn);
+        addNewColumnBasedOn(columnIndex, "_NUM");
     }
 
     private void enableSortingForAWhile(TableColumn<DataRow, ?> textColumn) {
@@ -393,5 +405,19 @@ public class TableController {
             header[i] = inputDialog.showAndWait().orElse(defaultValue);
         }
         return header;
+    }
+
+    public List<String> getHeader() {
+        return header;
+    }
+
+    public ObservableList<DataRow> getData() {
+        return data;
+    }
+
+    public void reset() {
+        table.getColumns().clear();
+        data.clear();
+        table.refresh();
     }
 }

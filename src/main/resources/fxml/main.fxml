@@ -11,12 +11,19 @@
                 <Menu mnemonicParsing="false" text="File">
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#loadFile" text="Load"/>
-                        <MenuItem mnemonicParsing="false" text="Close"/>
+                        <MenuItem mnemonicParsing="false" text="Reset" onAction="#reset"/>
+                        <MenuItem mnemonicParsing="false" text="Close" onAction="#close"/>
+                    </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="View">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Chart" onAction="#showChartInput"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
                         <MenuItem mnemonicParsing="false" text="About" onAction="#showAbout"/>
+                        <MenuItem mnemonicParsing="false" text="Help" onAction="#showHelp"/>
                     </items>
                 </Menu>
             </menus>

@@ -2,6 +2,7 @@ package io.gitlab.swded.system;
 
 import io.gitlab.swded.system.controller.MainController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,8 +15,9 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/main.fxml"));
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("SWD System");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.centerOnScreen();
+        primaryStage.setOnHidden(event -> Platform.exit());
         primaryStage.show();
         primaryStage.toFront();
         primaryStage.setFullScreen(true);
@@ -25,7 +27,9 @@ public class Main extends Application {
         mainController.postInitialize();
     }
 
+
     public static void main(String[] args) {
         launch(args);
     }
+
 }
