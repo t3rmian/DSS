@@ -2,9 +2,6 @@ package io.gitlab.swded.system.controller;
 
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.Parser;
-import io.gitlab.swded.system.view.Chart;
-import io.gitlab.swded.system.view.Chart2D;
-import io.gitlab.swded.system.view.Chart3D;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -111,7 +108,7 @@ public class MainController implements ChartInputController.ChartInputListener {
                         "Systemy Wspomagania Decyzji / Eksploracja Danych\n" +
                         "Group: PS2\n" +
                         "Authors: Maciej Borowik, Damian Terlecki\n" +
-                        "\nTechnologies and components used:\nJavaFX, Maven, plotly.js (2d charts) + Jackson, jzy3d (3d charts)");
+                        "\nTechnologies and components used:\nJavaFX, Maven, JFreeChart (2d charts), JMathPlot (3d charts)");
         infoAlert.setTitle("About");
         infoAlert.setHeaderText(null);
         infoAlert.show();
@@ -144,13 +141,7 @@ public class MainController implements ChartInputController.ChartInputListener {
 
     @Override
     public void onChartConfigSet(int classColumnIndex, int[] valueColumnIndexes) {
-        Chart chart;
-        if (valueColumnIndexes.length == 2) {
-            chart = new Chart2D(tableController.getData(), classColumnIndex, valueColumnIndexes, tableController.getHeader());
-        } else {
-            chart = new Chart3D(tableController.getData(), classColumnIndex, valueColumnIndexes, tableController.getHeader());
-        }
-        chart.show();
+        new ChartController().showChart(tableController.getData(), classColumnIndex, valueColumnIndexes, tableController.getHeader());
     }
 
     public void close(ActionEvent actionEvent) {
@@ -162,6 +153,6 @@ public class MainController implements ChartInputController.ChartInputListener {
     }
 
     private Stage getStage() {
-        return (Stage)getWindow();
+        return (Stage) getWindow();
     }
 }

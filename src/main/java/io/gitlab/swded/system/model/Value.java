@@ -32,7 +32,8 @@ public class Value {
 
     public String getText() {
         if (text == null) {
-            return value.toString();
+            String textNumber = String.valueOf(value.get());
+            return !textNumber.contains(".") ? textNumber : textNumber.replaceAll("0*$", "").replaceAll("\\.$", "");
         }
         return text.get();
     }

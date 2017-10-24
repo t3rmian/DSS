@@ -17,7 +17,7 @@ public class Main extends Application {
         primaryStage.setTitle("SWD System");
         primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.centerOnScreen();
-        primaryStage.setOnHidden(event -> Platform.exit());
+        primaryStage.setOnHidden(event -> System.exit(0));
         primaryStage.show();
         primaryStage.toFront();
         primaryStage.setFullScreen(true);

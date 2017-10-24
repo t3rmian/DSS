@@ -21,7 +21,6 @@ public class ChartInputController {
     @FXML
     private ListView<String> selectedClassColumns;
     private ChartInputListener inputListener;
-    private DataRow dataRow;
     private List<String> header;
 
     public void setInputListener(ChartInputListener inputListener) {
@@ -98,15 +97,13 @@ public class ChartInputController {
         if (defaultDataRow == null || defaultDataRow.getValues() == null) {
             return;
         }
-        this.dataRow = defaultDataRow;
         this.header = header;
         List<Value> values = defaultDataRow.getValues();
         for (int i = 0; i < values.size(); i++) {
             if (values.get(i).isNumber()) {
                 valueColumnsToSelect.getItems().add(header.get(i));
-            } else {
-                classColumnsToSelect.getItems().add(header.get(i));
             }
+            classColumnsToSelect.getItems().add(header.get(i));
         }
         valueColumnsToSelect.getSelectionModel().selectFirst();
         classColumnsToSelect.getSelectionModel().selectFirst();
