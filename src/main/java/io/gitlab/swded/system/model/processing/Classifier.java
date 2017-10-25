@@ -51,7 +51,7 @@ public class Classifier {
         return data.get(nearestGroup.get(0).getKey()).getTextValue(classColumnIndex);
     }
 
-    public double rateClassification(int knn, Metric metric) {
+    public double classificationQuality(int knn, Metric metric) {
         int size = data.size();
         int hits = 0;
         for (int i = 0; i < size; i++) {

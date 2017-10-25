@@ -117,27 +117,23 @@ public class MainController implements ChartInputController.ChartInputListener {
 
     public void showHelp(ActionEvent actionEvent) {
         Alert infoAlert = new Alert(Alert.AlertType.INFORMATION,
-                "Right click on column headers for operations.");
+                "Input file and pasted data should have columns separated by whitespaces.\nRight click on column headers for operations.");
         infoAlert.setTitle("Help");
         infoAlert.setHeaderText(null);
         infoAlert.show();
     }
 
-    public void showChartInput(ActionEvent actionEvent) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/chartInput.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Chart input");
-            stage.setScene(new Scene(loader.load()));
-            stage.show();
-            ChartInputController chartInputController = loader.getController();
-            DataRow dataRow = tableController.getData().get(0);
-            List<String> header = tableController.getHeader();
-            chartInputController.setInputListener(this);
-            chartInputController.initializeUI(dataRow, header);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void showChartInput(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/chartInput.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("Chart input");
+        stage.setScene(new Scene(loader.load()));
+        stage.show();
+        ChartInputController chartInputController = loader.getController();
+        DataRow dataRow = tableController.getData().get(0);
+        List<String> header = tableController.getHeader();
+        chartInputController.setInputListener(this);
+        chartInputController.initializeUI(dataRow, header);
     }
 
     @Override
@@ -145,22 +141,32 @@ public class MainController implements ChartInputController.ChartInputListener {
         new ChartController().showChart(tableController.getData(), classColumnIndex, valueColumnIndexes, tableController.getHeader());
     }
 
-    public void showClassification(ActionEvent actionEvent) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/classificationInput.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Classification input");
-            stage.setScene(new Scene(loader.load()));
-            stage.show();
-            ClassificationInputController chartInputController = loader.getController();
-            ObservableList<DataRow> data = tableController.getData();
-            DataRow dataRow = data.get(0);
-            List<String> header = tableController.getHeader();
-            chartInputController.setData(data);
-            chartInputController.initializeUI(dataRow, header);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void showClassification(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/classificationInput.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("Classification input");
+        stage.setScene(new Scene(loader.load()));
+        stage.show();
+        ClassificationInputController classificationInputController = loader.getController();
+        ObservableList<DataRow> data = tableController.getData();
+        DataRow dataRow = data.get(0);
+        List<String> header = tableController.getHeader();
+        classificationInputController.setData(data);
+        classificationInputController.initializeUI(dataRow, header);
+    }
+
+    public void showClassificationQA(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/classificationQAInput.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("Classification QA input");
+        stage.setScene(new Scene(loader.load()));
+        stage.show();
+        ClassificationQAInputController classificationQAInputController = loader.getController();
+        ObservableList<DataRow> data = tableController.getData();
+        DataRow dataRow = data.get(0);
+        List<String> header = tableController.getHeader();
+        classificationQAInputController.setData(data);
+        classificationQAInputController.initializeUI(dataRow, header);
     }
 
     public void close(ActionEvent actionEvent) {

@@ -23,6 +23,7 @@
                 <Menu mnemonicParsing="false" text="Data">
                     <items>
                         <MenuItem mnemonicParsing="false" text="Classification" onAction="#showClassification"/>
+                        <MenuItem mnemonicParsing="false" text="Classification QA" onAction="#showClassificationQA"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">

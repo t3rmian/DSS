@@ -1,6 +1,5 @@
 package io.gitlab.swded.system.controller;
 
-import com.sun.javafx.collections.ObservableListWrapper;
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.processing.Classifier;
 import io.gitlab.swded.system.model.processing.Metric;
@@ -13,22 +12,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ClassificationInputController extends ChartInputController {
+public class ClassificationInputController extends ClassificationQAInputController {
 
-    @FXML
-    private ComboBox<Integer> numberComboBox;
-    @FXML
-    private ComboBox<Metric> metricComboBox;
     @FXML
     private TextField inputTextField;
-    private List<DataRow> data;
-
-    public void setData(List<DataRow> data) {
-        this.data = data;
-    }
 
     public void confirm(ActionEvent actionEvent) {
         if (!validateInput()) {
@@ -61,13 +50,6 @@ public class ClassificationInputController extends ChartInputController {
         return unknownObject;
     }
 
-    private Classifier createClassifier() {
-        Classifier classifier = new Classifier(data);
-        classifier.setClassColumnIndex(getClassColumnIndex());
-        classifier.setValueColumnIndexes(getValueColumnIndexes());
-        return classifier;
-    }
-
     private void printOutput(String aClass) {
         Alert infoAlert = new Alert(Alert.AlertType.INFORMATION, "The object has been classified as: " + aClass);
         infoAlert.setHeaderText(null);
@@ -86,12 +68,6 @@ public class ClassificationInputController extends ChartInputController {
 
     public void initializeUI(DataRow defaultDataRow, List<String> header) {
         super.initializeUI(defaultDataRow, header);
-        List<Integer> numbers = new ArrayList<>();
-        for (int i = 1; i < data.size(); i++) {
-            numbers.add(i);
-        }
-        numberComboBox.setItems(new ObservableListWrapper<>(numbers));
-        numberComboBox.getSelectionModel().selectFirst();
         metricComboBox.setItems(FXCollections.observableArrayList(Metric.values()));
         metricComboBox.getSelectionModel().selectFirst();
     }
