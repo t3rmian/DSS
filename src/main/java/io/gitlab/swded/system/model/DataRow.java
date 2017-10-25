@@ -20,6 +20,14 @@ public class DataRow {
         return values.get(i);
     }
 
+    public double getNumericValue(int i) {
+        return values.get(i).getValue();
+    }
+
+    public String getTextValue(int i) {
+        return values.get(i).getText();
+    }
+
     public int size() {
         return values.size();
     }
