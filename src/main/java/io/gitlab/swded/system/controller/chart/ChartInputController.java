@@ -1,4 +1,4 @@
-package io.gitlab.swded.system.controller;
+package io.gitlab.swded.system.controller.chart;
 
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.Value;
@@ -70,7 +70,7 @@ public class ChartInputController {
         close(actionEvent);
     }
 
-    int getClassColumnIndex() {
+    protected final int getClassColumnIndex() {
         return getHeaderIndex(selectedClassColumns.getItems().get(0));
     }
 
@@ -78,11 +78,11 @@ public class ChartInputController {
         return header.indexOf(classHeader);
     }
 
-    int[] getValueColumnIndexes() {
+    protected final int[] getValueColumnIndexes() {
         return selectedValueColumns.getItems().stream().mapToInt(this::getHeaderIndex).toArray();
     }
 
-    boolean validateInput() {
+    protected boolean validateInput() {
         return validateSelectedValueColumns() && validateSelectedClassColumns();
     }
 
@@ -97,7 +97,7 @@ public class ChartInputController {
         return true;
     }
 
-    boolean validateSelectedClassColumns() {
+    protected boolean validateSelectedClassColumns() {
         if (selectedClassColumns.getItems().size() != 1) {
             Alert errorAlert = new Alert(Alert.AlertType.ERROR, "You must choose a class column");
             errorAlert.setHeaderText(null);
@@ -128,7 +128,7 @@ public class ChartInputController {
         classColumnsToSelect.getSelectionModel().selectFirst();
     }
 
-    interface ChartInputListener {
+    public interface ChartInputListener {
 
         void onChartConfigSet(int classColumnIndex, int[] valueColumnIndexes);
     }

@@ -1,5 +1,9 @@
 package io.gitlab.swded.system.controller;
 
+import io.gitlab.swded.system.controller.chart.ChartController;
+import io.gitlab.swded.system.controller.chart.ChartInputController;
+import io.gitlab.swded.system.controller.classification.ClassificationInputController;
+import io.gitlab.swded.system.controller.classification.ClassificationQAInputController;
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.Parser;
 import javafx.collections.ObservableList;

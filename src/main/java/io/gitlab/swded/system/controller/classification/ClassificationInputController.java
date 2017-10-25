@@ -1,4 +1,4 @@
-package io.gitlab.swded.system.controller;
+package io.gitlab.swded.system.controller.classification;
 
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.processing.Classifier;
@@ -8,7 +8,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -58,7 +57,7 @@ public class ClassificationInputController extends ClassificationQAInputControll
     }
 
     @Override
-    boolean validateInput() {
+    protected boolean validateInput() {
         return validateSelectedClassColumns();
     }
 

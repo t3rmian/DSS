@@ -1,6 +1,7 @@
-package io.gitlab.swded.system.controller;
+package io.gitlab.swded.system.controller.classification;
 
 import com.sun.javafx.collections.ObservableListWrapper;
+import io.gitlab.swded.system.controller.chart.ChartInputController;
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.processing.Classifier;
 import io.gitlab.swded.system.model.processing.Metric;
@@ -53,7 +54,7 @@ public class ClassificationQAInputController extends ChartInputController {
     }
 
     @Override
-    boolean validateInput() {
+    protected boolean validateInput() {
         return validateSelectedClassColumns();
     }
 

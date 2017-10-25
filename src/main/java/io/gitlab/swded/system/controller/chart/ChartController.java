@@ -1,4 +1,4 @@
-package io.gitlab.swded.system.controller;
+package io.gitlab.swded.system.controller.chart;
 
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.XYZSeries;
