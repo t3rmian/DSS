@@ -192,7 +192,7 @@ public class TableController {
                     cache.intervalFrom = String.valueOf(newRange.getKey());
                     cache.intervalTo = String.valueOf(newRange.getKey());
                     double min = Double.MAX_VALUE;
-                    double max = Double.MIN_VALUE;
+                    double max = -Double.MAX_VALUE;
                     for (DataRow row : data) {
                         double value = row.getValue(columnIndex).getValue();
                         min = Math.min(min, value);
@@ -249,7 +249,7 @@ public class TableController {
             return;
         }
         double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
+        double max = -Double.MAX_VALUE;
         for (DataRow row : data) {
             double value = row.getValue(columnIndex).getValue();
             min = Math.min(min, value);

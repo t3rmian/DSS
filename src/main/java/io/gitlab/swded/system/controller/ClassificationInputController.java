@@ -30,9 +30,14 @@ public class ClassificationInputController extends ChartInputController {
         }
         String input = inputTextField.getText();
         DataRow inputObject = new DataRow(input.split(" "));
-        System.out.println(inputObject);
         DataRow unknownObject = new DataRow(data.get(0).toString().split(" "));
-        System.out.println(unknownObject);
+        unknownObject.getValues().forEach(value -> {
+            if (value.isNumber()) {
+                value.setValue(-Double.MAX_VALUE);
+            } else {
+                value.setText("UNKNOWN");
+            }
+        });
         int[] valueColumnIndexes = getValueColumnIndexes();
         for (int i = 0; i < valueColumnIndexes.length; i++) {
             unknownObject.getValues().get(valueColumnIndexes[i]).setValue(inputObject.getNumericValue(i));

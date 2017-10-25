@@ -55,7 +55,7 @@ class Calculator {
     }
 
     public double infiniteDistance(DataRow v1, DataRow v2, int[] indexes) {
-        double result = Double.MIN_VALUE;
+        double result = -Double.MAX_VALUE;
         for (int index : indexes) {
             result = Math.max(result, Math.abs(v1.getNumericValue(index) - v2.getNumericValue(index)));
         }
