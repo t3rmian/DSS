@@ -66,11 +66,11 @@ public class ChartInputController {
     public void confirm(ActionEvent actionEvent) {
         if (!validateInput()) return;
         int[] valueColumnIndexes = getValueColumnIndexes();
-        inputListener.onChartConfigSet(getClassHeaderIndex(), valueColumnIndexes);
+        inputListener.onChartConfigSet(getClassColumnIndex(), valueColumnIndexes);
         close(actionEvent);
     }
 
-    int getClassHeaderIndex() {
+    int getClassColumnIndex() {
         return getHeaderIndex(selectedClassColumns.getItems().get(0));
     }
 

@@ -2,9 +2,13 @@ package io.gitlab.swded.system.controller;
 
 import com.sun.javafx.collections.ObservableListWrapper;
 import io.gitlab.swded.system.model.DataRow;
+import io.gitlab.swded.system.model.processing.Classifier;
+import io.gitlab.swded.system.model.processing.Metric;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -17,6 +21,8 @@ public class ClassificationInputController extends ChartInputController {
     @FXML
     private ComboBox<Integer> numberComboBox;
     @FXML
+    private ComboBox<Metric> metricComboBox;
+    @FXML
     private TextField inputTextField;
     private List<DataRow> data;
 
@@ -28,6 +34,14 @@ public class ClassificationInputController extends ChartInputController {
         if (!validateInput()) {
             return;
         }
+        DataRow unknownObject = parseInputRow();
+        Classifier classifier = createClassifier();
+        String aClass = classifier.classify(unknownObject, numberComboBox.getValue(), metricComboBox.getValue());
+        unknownObject.getValues().get(getClassColumnIndex()).setText(aClass);
+        printOutput(aClass);
+    }
+
+    private DataRow parseInputRow() {
         String input = inputTextField.getText();
         DataRow inputObject = new DataRow(input.split(" "));
         DataRow unknownObject = new DataRow(data.get(0).toString().split(" "));
@@ -42,8 +56,23 @@ public class ClassificationInputController extends ChartInputController {
         for (int i = 0; i < valueColumnIndexes.length; i++) {
             unknownObject.getValues().get(valueColumnIndexes[i]).setValue(inputObject.getNumericValue(i));
         }
-        int classColumnIndex = getClassHeaderIndex();
+        int classColumnIndex = getClassColumnIndex();
         unknownObject.getValues().get(classColumnIndex).setText("UNCLASSIFIED");
+        return unknownObject;
+    }
+
+    private Classifier createClassifier() {
+        Classifier classifier = new Classifier(data);
+        classifier.setClassColumnIndex(getClassColumnIndex());
+        classifier.setValueColumnIndexes(getValueColumnIndexes());
+        return classifier;
+    }
+
+    private void printOutput(String aClass) {
+        Alert infoAlert = new Alert(Alert.AlertType.INFORMATION, "The object has been classified as: " + aClass);
+        infoAlert.setHeaderText(null);
+        infoAlert.setTitle("Classification output");
+        infoAlert.show();
     }
 
     @Override
@@ -63,6 +92,8 @@ public class ClassificationInputController extends ChartInputController {
         }
         numberComboBox.setItems(new ObservableListWrapper<>(numbers));
         numberComboBox.getSelectionModel().selectFirst();
+        metricComboBox.setItems(FXCollections.observableArrayList(Metric.values()));
+        metricComboBox.getSelectionModel().selectFirst();
     }
 
 }

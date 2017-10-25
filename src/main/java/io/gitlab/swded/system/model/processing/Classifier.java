@@ -7,12 +7,12 @@ import java.util.*;
 import java.util.function.DoubleFunction;
 import java.util.stream.Collectors;
 
-public class Classificator {
+public class Classifier {
     private int classColumnIndex;
     private final Calculator calculator;
     private final List<DataRow> data;
 
-    public Classificator(List<DataRow> data) {
+    public Classifier(List<DataRow> data) {
         this.data = data;
         calculator = new Calculator(data);
     }
@@ -25,7 +25,7 @@ public class Classificator {
         this.classColumnIndex = classColumnIndex;
     }
 
-    public String classify(DataRow unknownObject, int knn, Calculator.Metric metric) {
+    public String classify(DataRow unknownObject, int knn, Metric metric) {
         calculator.setMetric(metric);
         List<Pair<Integer, Double>> distances = data.stream()
                 .mapToDouble(row -> calculator.calculateDistance(unknownObject, row))
@@ -51,7 +51,7 @@ public class Classificator {
         return data.get(nearestGroup.get(0).getKey()).getTextValue(classColumnIndex);
     }
 
-    public double rateClassification(int knn, Calculator.Metric metric) {
+    public double rateClassification(int knn, Metric metric) {
         int size = data.size();
         int hits = 0;
         for (int i = 0; i < size; i++) {

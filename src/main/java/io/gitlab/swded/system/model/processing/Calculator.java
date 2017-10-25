@@ -65,9 +65,9 @@ class Calculator {
     public double mahalanobisDistance(List<DataRow> data, DataRow v1, DataRow v2, int[] indexes) {
         double[][] covarianceMatrix = covarianceMatrix(data, indexes);
         double[][] invertedCovarianceMatrix = MatrixUtils.invert(covarianceMatrix);
-        double[][] diff = new double[1][indexes.length];
+        double[][] diff = new double[indexes.length][1];
         for (int i = 0; i < indexes.length; i++) {
-            diff[0][i] = v1.getNumericValue(indexes[i]) - v2.getNumericValue(indexes[i]);
+            diff[i][0] = v1.getNumericValue(indexes[i]) - v2.getNumericValue(indexes[i]);
         }
         double[][] transposedDiff = MatrixUtils.transpose(diff);
 
@@ -75,7 +75,7 @@ class Calculator {
     }
 
     private double[][] covarianceMatrix(List<DataRow> data, int[] indexes) {
-        double[][] covarianceMatrix = new double[data.size()][data.size()];
+        double[][] covarianceMatrix = new double[indexes.length][indexes.length];
         for (int i = 0; i < indexes.length; i++) {
             for (int j = 0; j < indexes.length; j++) {
                 if (i == j) {
@@ -108,7 +108,4 @@ class Calculator {
         return data.stream().mapToDouble(row -> row.getNumericValue(columnIndex)).sum() / data.size();
     }
 
-    enum Metric {
-        EUCLIDEAN, MANHATTAN, INFINITE, MAHALANOBIS
-    }
 }

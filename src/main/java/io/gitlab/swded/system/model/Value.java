@@ -46,7 +46,11 @@ public class Value {
         try {
             return value.get();
         } catch (NullPointerException npe) {
-            return 0;
+            try {
+                return Double.parseDouble(text.get());
+            } catch (NumberFormatException ex) {
+                throw new RuntimeException("A numeric cell does not contain number but (probably) text");
+            }
         }
     }
 

@@ -82,13 +82,18 @@
       </Label>
       <ComboBox fx:id="numberComboBox" prefWidth="65.0" StackPane.alignment="BOTTOM_CENTER">
          <StackPane.margin>
-            <Insets bottom="90.0" left="100.0" />
+            <Insets bottom="90.0" />
          </StackPane.margin>
       </ComboBox>
       <Label text="k nearest neighbours:" StackPane.alignment="BOTTOM_CENTER">
          <StackPane.margin>
-            <Insets bottom="95.0" right="100.0" />
+            <Insets bottom="95.0" right="230.0" />
          </StackPane.margin>
       </Label>
+      <ComboBox fx:id="metricComboBox" prefWidth="130.0" StackPane.alignment="BOTTOM_CENTER">
+         <StackPane.margin>
+            <Insets bottom="90.0" left="230.0" />
+         </StackPane.margin>
+      </ComboBox>
    </children>
 </StackPane>
