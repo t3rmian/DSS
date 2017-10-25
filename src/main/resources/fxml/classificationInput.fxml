@@ -2,13 +2,15 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="617.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.gitlab.swded.system.controller.ChartInputController">
+<StackPane alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="722.0" prefWidth="617.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.gitlab.swded.system.controller.ClassificationInputController">
    <children>
-      <Label text="Select numeric columns" StackPane.alignment="TOP_CENTER">
+      <Label text="Select numeric columns (pay attention to the order)" StackPane.alignment="TOP_CENTER">
          <StackPane.margin>
             <Insets left="20.0" right="20.0" top="25.0" />
          </StackPane.margin>
@@ -68,5 +70,25 @@
             <Insets bottom="20.0" left="150.0" />
          </StackPane.margin>
       </Button>
+      <TextField fx:id="inputTextField" StackPane.alignment="BOTTOM_CENTER">
+         <StackPane.margin>
+            <Insets bottom="135.0" left="50.0" right="50.0" />
+         </StackPane.margin>
+      </TextField>
+      <Label text="Object to classify (precede new columns with spaces)" StackPane.alignment="BOTTOM_CENTER">
+         <StackPane.margin>
+            <Insets bottom="165.0" />
+         </StackPane.margin>
+      </Label>
+      <ComboBox fx:id="numberComboBox" prefWidth="65.0" StackPane.alignment="BOTTOM_CENTER">
+         <StackPane.margin>
+            <Insets bottom="90.0" left="100.0" />
+         </StackPane.margin>
+      </ComboBox>
+      <Label text="k nearest neighbours:" StackPane.alignment="BOTTOM_CENTER">
+         <StackPane.margin>
+            <Insets bottom="95.0" right="100.0" />
+         </StackPane.margin>
+      </Label>
    </children>
 </StackPane>

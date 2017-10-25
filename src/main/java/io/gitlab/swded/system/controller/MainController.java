@@ -2,6 +2,7 @@ package io.gitlab.swded.system.controller;
 
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.Parser;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -126,14 +127,14 @@ public class MainController implements ChartInputController.ChartInputListener {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/chartInput.fxml"));
             Stage stage = new Stage();
-            stage.setTitle("2D Chart");
+            stage.setTitle("Chart input");
             stage.setScene(new Scene(loader.load()));
             stage.show();
             ChartInputController chartInputController = loader.getController();
             DataRow dataRow = tableController.getData().get(0);
             List<String> header = tableController.getHeader();
             chartInputController.setInputListener(this);
-            chartInputController.setData(dataRow, header);
+            chartInputController.initializeUI(dataRow, header);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -142,6 +143,24 @@ public class MainController implements ChartInputController.ChartInputListener {
     @Override
     public void onChartConfigSet(int classColumnIndex, int[] valueColumnIndexes) {
         new ChartController().showChart(tableController.getData(), classColumnIndex, valueColumnIndexes, tableController.getHeader());
+    }
+
+    public void showClassification(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/classificationInput.fxml"));
+            Stage stage = new Stage();
+            stage.setTitle("Classification input");
+            stage.setScene(new Scene(loader.load()));
+            stage.show();
+            ClassificationInputController chartInputController = loader.getController();
+            ObservableList<DataRow> data = tableController.getData();
+            DataRow dataRow = data.get(0);
+            List<String> header = tableController.getHeader();
+            chartInputController.setData(data);
+            chartInputController.initializeUI(dataRow, header);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void close(ActionEvent actionEvent) {

@@ -35,4 +35,11 @@ public class DataRow {
     public void addValue(Value value) {
         values.add(value);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        values.forEach(value -> sb.append(value.getText()).append(" "));
+        return sb.toString();
+    }
 }

@@ -20,6 +20,11 @@
                         <MenuItem mnemonicParsing="false" text="Chart" onAction="#showChartInput"/>
                     </items>
                 </Menu>
+                <Menu mnemonicParsing="false" text="Data">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Classification" onAction="#showClassification"/>
+                    </items>
+                </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
                         <MenuItem mnemonicParsing="false" text="About" onAction="#showAbout"/>

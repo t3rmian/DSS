@@ -13,15 +13,15 @@ import java.util.List;
 
 public class ChartInputController {
     @FXML
-    private ListView<String> valueColumnsToSelect;
+    ListView<String> valueColumnsToSelect;
     @FXML
-    private ListView<String> selectedValueColumns;
+    ListView<String> selectedValueColumns;
     @FXML
-    private ListView<String> classColumnsToSelect;
+    ListView<String> classColumnsToSelect;
     @FXML
-    private ListView<String> selectedClassColumns;
+    ListView<String> selectedClassColumns;
+    List<String> header;
     private ChartInputListener inputListener;
-    private List<String> header;
 
     public void setInputListener(ChartInputListener inputListener) {
         this.inputListener = inputListener;
@@ -65,13 +65,28 @@ public class ChartInputController {
 
     public void confirm(ActionEvent actionEvent) {
         if (!validateInput()) return;
-        String classHeader = selectedClassColumns.getItems().get(0);
-        int[] valueColumnIndexes = selectedValueColumns.getItems().stream().mapToInt(columnHeader -> header.indexOf(columnHeader)).toArray();
-        inputListener.onChartConfigSet(header.indexOf(classHeader), valueColumnIndexes);
+        int[] valueColumnIndexes = getValueColumnIndexes();
+        inputListener.onChartConfigSet(getClassHeaderIndex(), valueColumnIndexes);
         close(actionEvent);
     }
 
-    private boolean validateInput() {
+    int getClassHeaderIndex() {
+        return getHeaderIndex(selectedClassColumns.getItems().get(0));
+    }
+
+    private int getHeaderIndex(String classHeader) {
+        return header.indexOf(classHeader);
+    }
+
+    int[] getValueColumnIndexes() {
+        return selectedValueColumns.getItems().stream().mapToInt(this::getHeaderIndex).toArray();
+    }
+
+    boolean validateInput() {
+        return validateSelectedValueColumns() && validateSelectedClassColumns();
+    }
+
+    private boolean validateSelectedValueColumns() {
         if (selectedValueColumns.getItems().size() < 2 || selectedValueColumns.getItems().size() > 3) {
             Alert errorAlert = new Alert(Alert.AlertType.ERROR, "You must choose 2 (2d chart) or 3 (3d chart) value columns");
             errorAlert.setHeaderText(null);
@@ -79,6 +94,10 @@ public class ChartInputController {
             errorAlert.show();
             return false;
         }
+        return true;
+    }
+
+    boolean validateSelectedClassColumns() {
         if (selectedClassColumns.getItems().size() != 1) {
             Alert errorAlert = new Alert(Alert.AlertType.ERROR, "You must choose a class column");
             errorAlert.setHeaderText(null);
@@ -93,7 +112,7 @@ public class ChartInputController {
         ((Stage) ((Node) actionEvent.getTarget()).getScene().getWindow()).close();
     }
 
-    public void setData(DataRow defaultDataRow, List<String> header) {
+    public void initializeUI(DataRow defaultDataRow, List<String> header) {
         if (defaultDataRow == null || defaultDataRow.getValues() == null) {
             return;
         }

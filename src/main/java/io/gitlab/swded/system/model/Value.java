@@ -60,6 +60,7 @@ public class Value {
 
     public void setValue(double value) {
         this.value.set(value);
+        this.setText(String.valueOf(value));
     }
 
 }
