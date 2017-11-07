@@ -35,6 +35,9 @@ public class ClassificationQAInputController extends ChartInputController {
     }
 
     public void confirm(ActionEvent actionEvent) {
+        if (!validateInput()) {
+            return;
+        }
         Classifier classifier = createClassifier();
         double quality = classifier.classificationQuality(numberComboBox.getValue(), metricComboBox.getValue());
         printOutput(quality);
@@ -77,6 +80,9 @@ public class ClassificationQAInputController extends ChartInputController {
     }
 
     public void allKConfirm(ActionEvent actionEvent) {
+        if (!validateInput()) {
+            return;
+        }
         Classifier classifier = createClassifier();
         List<Double> results = new ArrayList<>();
         numberComboBox.getItems().forEach(index -> results.add(100.0 * classifier.classificationQuality(index, metricComboBox.getValue())));
