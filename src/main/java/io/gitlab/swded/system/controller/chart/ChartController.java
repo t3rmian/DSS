@@ -6,14 +6,16 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.math.plot.Plot3DPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ChartController {
 
@@ -24,6 +26,13 @@ public class ChartController {
         } else {
             chartFrame = create3Dchart(data, classColumnIndex, valueColumnIndexes, header);
         }
+        chartFrame.setSize(800, 600);
+        chartFrame.setLocationRelativeTo(null);
+        chartFrame.setVisible(true);
+    }
+
+    public void showChart(List<? extends Number> x, List<? extends Number> y, List<String> titleXYLabels) {
+        JFrame chartFrame = create2Dchart(x, y, titleXYLabels);
         chartFrame.setSize(800, 600);
         chartFrame.setLocationRelativeTo(null);
         chartFrame.setVisible(true);
@@ -83,6 +92,33 @@ public class ChartController {
         chart.getPlot().setBackgroundPaint(Color.WHITE);
         chart.getXYPlot().setDomainGridlinePaint(Color.GRAY);
         chart.getXYPlot().setRangeGridlinePaint(Color.GRAY);
+
+        return new ChartFrame("2D Chart of " + chartTitle, chart);
+    }
+
+    private JFrame create2Dchart(List<? extends Number> x, List<? extends Number> y, List<String> titleXYLabels) {
+        String chartTitle = titleXYLabels.get(0);
+        String xAxisTitle = titleXYLabels.get(1);
+        String yAxisTitle = titleXYLabels.get(2);
+
+        XYSeries categoryDataset = new XYSeries(chartTitle);
+        for (int i = 0; i < x.size(); i++) {
+            categoryDataset.add(x.get(i).intValue(), y.get(i));
+        }
+
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                chartTitle, xAxisTitle, yAxisTitle,
+                new XYSeriesCollection(categoryDataset), PlotOrientation.VERTICAL, false, true, false);
+
+        chart.getPlot().setBackgroundPaint(Color.WHITE);
+        chart.getXYPlot().setDomainGridlinePaint(Color.GRAY);
+        chart.getXYPlot().setRangeGridlinePaint(Color.GRAY);
+        chart.getXYPlot().getRangeAxis().setUpperBound(100);
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesPaint(0, Color.BLUE);
+        renderer.setSeriesStroke(0, new BasicStroke(2f));
+        renderer.setAutoPopulateSeriesShape(false);
+        chart.getXYPlot().setRenderer(renderer);
 
         return new ChartFrame("2D Chart of " + chartTitle, chart);
     }

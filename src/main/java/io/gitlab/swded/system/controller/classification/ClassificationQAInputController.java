@@ -1,6 +1,7 @@
 package io.gitlab.swded.system.controller.classification;
 
 import com.sun.javafx.collections.ObservableListWrapper;
+import io.gitlab.swded.system.controller.chart.ChartController;
 import io.gitlab.swded.system.controller.chart.ChartInputController;
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.processing.Classifier;
@@ -15,6 +16,7 @@ import javafx.stage.Stage;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ClassificationQAInputController extends ChartInputController {
@@ -72,6 +74,13 @@ public class ClassificationQAInputController extends ChartInputController {
         numberComboBox.getSelectionModel().selectFirst();
         metricComboBox.setItems(FXCollections.observableArrayList(Metric.values()));
         metricComboBox.getSelectionModel().selectFirst();
+    }
+
+    public void allKConfirm(ActionEvent actionEvent) {
+        Classifier classifier = createClassifier();
+        List<Double> results = new ArrayList<>();
+        numberComboBox.getItems().forEach(index -> results.add(100.0 * classifier.classificationQuality(index, metricComboBox.getValue())));
+        new ChartController().showChart(numberComboBox.getItems(), results, Arrays.asList(metricComboBox.getValue() + " QA", "knn count", "Quality %"));
     }
 
 }
