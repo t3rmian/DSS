@@ -69,6 +69,7 @@ public class ClassificationQAInputController extends ChartInputController {
 
     public void initializeUI(DataRow defaultDataRow, List<String> header) {
         super.initializeUI(defaultDataRow, header);
+        maxValueColumns = -1;
         List<Integer> numbers = new ArrayList<>();
         for (int i = 1; i < data.size() - 1; i++) {
             numbers.add(i);

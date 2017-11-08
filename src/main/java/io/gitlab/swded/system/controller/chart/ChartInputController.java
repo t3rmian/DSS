@@ -22,6 +22,7 @@ public class ChartInputController {
     ListView<String> selectedClassColumns;
     List<String> header;
     private ChartInputListener inputListener;
+    protected int maxValueColumns = 3;
 
     public void setInputListener(ChartInputListener inputListener) {
         this.inputListener = inputListener;
@@ -29,7 +30,7 @@ public class ChartInputController {
 
     public void selectValueColumn(ActionEvent actionEvent) {
         String selectedItem = valueColumnsToSelect.getSelectionModel().getSelectedItem();
-        if (selectedItem == null || selectedValueColumns.getItems().size() == 3) {
+        if (selectedItem == null || selectedValueColumns.getItems().size() == maxValueColumns) {
             return;
         }
         valueColumnsToSelect.getItems().remove(selectedItem);
