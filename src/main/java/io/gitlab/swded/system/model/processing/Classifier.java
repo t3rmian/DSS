@@ -56,9 +56,13 @@ public class Classifier {
         int hits = 0;
         for (int i = 0; i < size; i++) {
             DataRow unknownObject = data.remove(0);
-            String closestClass = classify(unknownObject, knn, metric);
-            if (Objects.equals(closestClass, unknownObject.getTextValue(classColumnIndex))) {
-                hits++;
+            try {
+                String closestClass = classify(unknownObject, knn, metric);
+                if (Objects.equals(closestClass, unknownObject.getTextValue(classColumnIndex))) {
+                    hits++;
+                }
+            } catch (org.ejml.factory.SingularMatrixException e) {
+                System.err.println("Could not invert matrix");
             }
             data.add(unknownObject);
         }

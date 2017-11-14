@@ -50,6 +50,16 @@
             <artifactId>JMathPlot</artifactId>
             <version>1.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.ejml</groupId>
+            <artifactId>core</artifactId>
+            <version>0.30</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ejml</groupId>
+            <artifactId>simple</artifactId>
+            <version>0.30</version>
+        </dependency>
 
     </dependencies>
 

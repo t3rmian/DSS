@@ -1,7 +1,9 @@
 package io.gitlab.swded.system.model.processing;
 
 import io.gitlab.swded.system.model.DataRow;
+import org.ejml.simple.SimpleMatrix;
 
+import java.util.Arrays;
 import java.util.List;
 
 class Calculator {
@@ -63,15 +65,18 @@ class Calculator {
     }
 
     public double mahalanobisDistance(List<DataRow> data, DataRow v1, DataRow v2, int[] indexes) {
-        double[][] covarianceMatrix = covarianceMatrix(data, indexes);
-        double[][] invertedCovarianceMatrix = MatrixUtils.invert(covarianceMatrix);
+
+        double[][] covariance = covarianceMatrix(data, indexes);
+        SimpleMatrix covarianceMatrix = new SimpleMatrix(covariance);
+        SimpleMatrix invertedCovarianceMatrix = covarianceMatrix.invert();
         double[][] diff = new double[indexes.length][1];
         for (int i = 0; i < indexes.length; i++) {
             diff[i][0] = v1.getNumericValue(indexes[i]) - v2.getNumericValue(indexes[i]);
         }
-        double[][] transposedDiff = MatrixUtils.transpose(diff);
+        SimpleMatrix diffMatrix = new SimpleMatrix(diff);
+        SimpleMatrix diffTMatrix = diffMatrix.transpose();
 
-        return Math.sqrt(MatrixUtils.multiply(MatrixUtils.multiply(transposedDiff, invertedCovarianceMatrix), diff)[0][0]);
+        return diffMatrix.mult(invertedCovarianceMatrix).mult(diffTMatrix).get(0, 0);
     }
 
     private double[][] covarianceMatrix(List<DataRow> data, int[] indexes) {

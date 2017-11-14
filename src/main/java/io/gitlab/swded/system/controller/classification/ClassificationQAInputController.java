@@ -86,8 +86,22 @@ public class ClassificationQAInputController extends ChartInputController {
         }
         Classifier classifier = createClassifier();
         List<Double> results = new ArrayList<>();
-        numberComboBox.getItems().forEach(index -> results.add(100.0 * classifier.classificationQuality(index, metricComboBox.getValue())));
+        numberComboBox.getItems().forEach(index -> {
+            System.out.println((100 * index.floatValue() / data.size()) + "%");
+            results.add(100.0 * classifier.classificationQuality(index, metricComboBox.getValue()));
+        });
         new ChartController().showChart(numberComboBox.getItems(), results, Arrays.asList(metricComboBox.getValue() + " QA", "knn count", "Quality %"));
+    }
+
+    public void selectAllValueColumns(ActionEvent actionEvent) {
+        while (valueColumnsToSelect.getSelectionModel().getSelectedItem() != null) {
+            String selectedItem = valueColumnsToSelect.getSelectionModel().getSelectedItem();
+            if (selectedItem == null) {
+                return;
+            }
+            valueColumnsToSelect.getItems().remove(selectedItem);
+            selectedValueColumns.getItems().add(selectedItem);
+        }
     }
 
 }

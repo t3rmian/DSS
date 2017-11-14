@@ -13,9 +13,9 @@ import java.util.List;
 
 public class ChartInputController {
     @FXML
-    ListView<String> valueColumnsToSelect;
+    protected ListView<String> valueColumnsToSelect;
     @FXML
-    ListView<String> selectedValueColumns;
+    protected ListView<String> selectedValueColumns;
     @FXML
     ListView<String> classColumnsToSelect;
     @FXML
