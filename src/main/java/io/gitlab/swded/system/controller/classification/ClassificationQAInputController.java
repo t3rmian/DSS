@@ -80,15 +80,19 @@ public class ClassificationQAInputController extends ChartInputController {
         metricComboBox.getSelectionModel().selectFirst();
     }
 
+    volatile private int count = 0;
+
     public void allKConfirm(ActionEvent actionEvent) {
         if (!validateInput()) {
             return;
         }
+        count = 0;
         Classifier classifier = createClassifier();
-        List<Double> results = new ArrayList<>();
-        numberComboBox.getItems().forEach(index -> {
-            System.out.println((100 * index.floatValue() / data.size()) + "%");
-            results.add(100.0 * classifier.classificationQuality(index, metricComboBox.getValue()));
+        double[] results = new double[numberComboBox.getItems().size()];
+        numberComboBox.getItems().parallelStream().forEach(index -> {
+            count++;
+            System.out.println((100 * (float) count / data.size()) + "%");
+            results[index - 1] = 100.0 * classifier.classificationQuality(index, metricComboBox.getValue());
         });
         new ChartController().showChart(numberComboBox.getItems(), results, Arrays.asList(metricComboBox.getValue() + " QA", "knn count", "Quality %"));
     }

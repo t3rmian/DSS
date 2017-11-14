@@ -1,6 +1,7 @@
 package io.gitlab.swded.system.model.processing;
 
 import io.gitlab.swded.system.model.DataRow;
+import javafx.collections.FXCollections;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -52,6 +53,7 @@ public class Classifier {
     }
 
     public double classificationQuality(int knn, Metric metric) {
+        List<DataRow> data = new ArrayList<>(this.data);
         int size = data.size();
         int hits = 0;
         for (int i = 0; i < size; i++) {

@@ -31,7 +31,7 @@ public class ChartController {
         chartFrame.setVisible(true);
     }
 
-    public void showChart(List<? extends Number> x, List<? extends Number> y, List<String> titleXYLabels) {
+    public void showChart(List<? extends Number> x, double[] y, List<String> titleXYLabels) {
         JFrame chartFrame = create2Dchart(x, y, titleXYLabels);
         chartFrame.setSize(800, 600);
         chartFrame.setLocationRelativeTo(null);
@@ -96,14 +96,14 @@ public class ChartController {
         return new ChartFrame("2D Chart of " + chartTitle, chart);
     }
 
-    private JFrame create2Dchart(List<? extends Number> x, List<? extends Number> y, List<String> titleXYLabels) {
+    private JFrame create2Dchart(List<? extends Number> x, double[] y, List<String> titleXYLabels) {
         String chartTitle = titleXYLabels.get(0);
         String xAxisTitle = titleXYLabels.get(1);
         String yAxisTitle = titleXYLabels.get(2);
 
         XYSeries categoryDataset = new XYSeries(chartTitle);
         for (int i = 0; i < x.size(); i++) {
-            categoryDataset.add(x.get(i).intValue(), y.get(i));
+            categoryDataset.add(x.get(i).intValue(), y[i]);
         }
 
         JFreeChart chart = ChartFactory.createXYLineChart(
