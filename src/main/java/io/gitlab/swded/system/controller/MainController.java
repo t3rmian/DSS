@@ -113,7 +113,7 @@ public class MainController implements ChartInputController.ChartInputListener {
                         "Systemy Wspomagania Decyzji / Eksploracja Danych\n" +
                         "Group: PS2\n" +
                         "Authors: Maciej Borowik, Damian Terlecki\n" +
-                        "\nTechnologies and components used:\nJavaFX, Maven, JFreeChart (2d charts), JMathPlot (3d charts)");
+                        "\nTechnologies and components used:\nJavaFX, Maven, JFreeChart (2d charts), JMathPlot (3d charts), ejm SimpleMatrix");
         infoAlert.setTitle("About");
         infoAlert.setHeaderText(null);
         infoAlert.show();
