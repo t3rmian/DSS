@@ -153,4 +153,43 @@ class Calculator {
         return centroid;
     }
 
+    public double clustersSSE(Pair<List<DataRow>, int[]> clusters) {
+        List<DataRow> centroids = clusters.getKey();
+        int[] classes = clusters.getValue();
+        return IntStream.range(0, centroids.size())
+                .mapToDouble(centroidIndex ->
+                        IntStream.range(0, data.size()).filter(index -> classes[centroidIndex] == centroidIndex)
+                                .mapToObj(data::get)
+                                .mapToDouble(clusterRow -> sse(clusterRow, centroids.get(centroidIndex)))
+                                .sum()
+                ).sum();
+    }
+
+    private double sse(DataRow clusterRow, DataRow centroidRow) {
+        return IntStream.range(0, indexes.length)
+                .mapToDouble(columnIndex -> {
+                    double diff = clusterRow.getNumericValue(columnIndex) - centroidRow.getNumericValue(columnIndex);
+                    return diff * diff;
+                }).sum();
+    }
+
+    public double clustersJaccard(Pair<List<DataRow>, int[]> clusters) {
+        List<DataRow> centroids = clusters.getKey();
+        int[] classes = clusters.getValue();
+        return IntStream.range(0, centroids.size())
+                .mapToDouble(centroidIndex ->
+                        IntStream.range(0, data.size()).filter(index -> classes[centroidIndex] == centroidIndex)
+                                .mapToObj(data::get)
+                                .mapToDouble(clusterRow -> jaccardSimilarity(clusterRow, centroids.get(centroidIndex)))
+                                .sum()
+                ).sum();
+    }
+
+    private double jaccardSimilarity(DataRow clusterRow, DataRow centroidRow) {
+        return IntStream.range(0, indexes.length)
+                .mapToDouble(columnIndex -> Math.min(clusterRow.getNumericValue(columnIndex), centroidRow.getNumericValue(columnIndex))).sum()
+                /
+                IntStream.range(0, indexes.length)
+                        .mapToDouble(columnIndex -> Math.max(clusterRow.getNumericValue(columnIndex), centroidRow.getNumericValue(columnIndex))).sum();
+    }
 }

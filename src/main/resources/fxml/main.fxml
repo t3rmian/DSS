@@ -25,6 +25,7 @@
                         <MenuItem mnemonicParsing="false" text="Classification" onAction="#showClassification"/>
                         <MenuItem mnemonicParsing="false" text="Classification QA" onAction="#showClassificationQA"/>
                         <MenuItem mnemonicParsing="false" text="Grouping" onAction="#showGrouping"/>
+                        <MenuItem mnemonicParsing="false" text="Grouping QA" onAction="#showGroupingQA"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">

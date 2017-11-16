@@ -26,14 +26,38 @@ public class Classifier {
         this.classColumnIndex = classColumnIndex;
     }
 
-    public int[] classifyGroups(int groupCount, Metric metric) {
+    public List<Pair<Integer, Double>> classifyGroupsQA(int groupCount, Metric metric, ClusteringAssessment clusteringAssessment) {
+        switch (clusteringAssessment) {
+            case ELBOW:
+                return IntStream.rangeClosed(1, groupCount)
+                        .parallel()
+                        .mapToObj(iterationGroupCount -> new Pair<>(iterationGroupCount, calculator.clustersSSE(classifyGroups(iterationGroupCount, metric))))
+                        .collect(Collectors.toList())
+                        .stream().sorted(Comparator.comparing(Pair::getKey))
+                        .collect(Collectors.toList())
+                        ;
+            case JACCARD:
+                return IntStream.rangeClosed(1, groupCount)
+                        .parallel()
+                        .mapToObj(iterationGroupCount -> new Pair<>(iterationGroupCount, calculator.clustersJaccard(classifyGroups(iterationGroupCount, metric))))
+                        .collect(Collectors.toList())
+                        .stream().sorted(Comparator.comparing(Pair::getKey))
+                        .collect(Collectors.toList());
+            default:
+                throw new RuntimeException("Unknown clustering QA method");
+        }
+    }
+
+    public Pair<List<DataRow>, int[]> classifyGroups(int groupCount, Metric metric) {
         calculator.setMetric(metric);
         List<DataRow> centroids = calculator.selectInitialCentroids(groupCount);
         int[] classes = calculator.associateCentroids(centroids);
         boolean change = true;
-        int iteration = 0;
+        long iteration = 0;
         while (change) {
-            System.out.println("Iteration: " + (++iteration));
+            if (++iteration % 5000 == 0) {
+                System.out.println("K: " + groupCount + ", Iteration: " + iteration);
+            }
             centroids = calculator.selectNextCentroids(centroids, classes);
             int[] newClasses = calculator.associateCentroids(centroids);
             change = false;
@@ -49,10 +73,7 @@ public class Classifier {
             }
             classes = newClasses;
         }
-        for (int i = 0; i < classes.length; i++) {
-            classes[i] += 1;
-        }
-        return classes;
+        return new Pair<>(centroids, classes);
     }
 
     public String classify(DataRow unknownObject, int knn, Metric metric) {

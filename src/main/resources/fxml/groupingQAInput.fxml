@@ -7,7 +7,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="403.0" prefWidth="617.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.gitlab.swded.system.controller.grouping.GroupingInputController">
+<StackPane alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="446.0" prefWidth="617.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.gitlab.swded.system.controller.grouping.GroupingQAInputController">
    <children>
       <Label text="Select numeric columns for grouping" StackPane.alignment="TOP_CENTER">
          <StackPane.margin>
@@ -49,7 +49,7 @@
             <Insets bottom="90.0" />
          </StackPane.margin>
       </ComboBox>
-      <Label text="group (class) count:" StackPane.alignment="BOTTOM_CENTER">
+      <Label text="MAX group (class) count:" StackPane.alignment="BOTTOM_CENTER">
          <StackPane.margin>
             <Insets bottom="95.0" right="250.0" />
          </StackPane.margin>
@@ -64,5 +64,15 @@
             <Insets top="50.0" />
          </StackPane.margin>
       </Button>
+      <ComboBox fx:id="clusteringComboBox" prefWidth="130.0" StackPane.alignment="BOTTOM_CENTER">
+         <StackPane.margin>
+            <Insets bottom="130.0" left="250.0" />
+         </StackPane.margin>
+      </ComboBox>
+      <Label text="Similarity measurement analysis method:" StackPane.alignment="BOTTOM_CENTER">
+         <StackPane.margin>
+            <Insets bottom="134.0" right="130.0" />
+         </StackPane.margin>
+      </Label>
    </children>
 </StackPane>

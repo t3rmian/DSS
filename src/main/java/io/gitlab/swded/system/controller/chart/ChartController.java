@@ -19,6 +19,16 @@ import java.util.Map;
 
 public class ChartController {
 
+    private final boolean percentage;
+
+    public ChartController() {
+        percentage = false;
+    }
+
+    public ChartController(boolean percentage) {
+        this.percentage = percentage;
+    }
+
     public void showChart(List<DataRow> data, int classColumnIndex, int[] valueColumnIndexes, List<String> header) {
         JFrame chartFrame;
         if (valueColumnIndexes.length == 2) {
@@ -113,7 +123,9 @@ public class ChartController {
         chart.getPlot().setBackgroundPaint(Color.WHITE);
         chart.getXYPlot().setDomainGridlinePaint(Color.GRAY);
         chart.getXYPlot().setRangeGridlinePaint(Color.GRAY);
-        chart.getXYPlot().getRangeAxis().setUpperBound(100);
+        if (percentage) {
+            chart.getXYPlot().getRangeAxis().setUpperBound(100);
+        }
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
         renderer.setSeriesPaint(0, Color.BLUE);
         renderer.setSeriesStroke(0, new BasicStroke(2f));

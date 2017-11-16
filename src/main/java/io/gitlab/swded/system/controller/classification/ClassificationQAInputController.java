@@ -105,7 +105,7 @@ public class ClassificationQAInputController extends ChartInputController {
             System.out.println((100 * (float) count / data.size()) + "%");
             results[index - 1] = 100.0 * classifier.classificationQuality(index, metricComboBox.getValue());
         });
-        new ChartController().showChart(numberComboBox.getItems(), results, Arrays.asList(metricComboBox.getValue() + " QA", "knn count", "Quality %"));
+        new ChartController(true).showChart(numberComboBox.getItems(), results, Arrays.asList(metricComboBox.getValue() + " QA", "knn count", "Quality %"));
     }
 
     public void selectAllValueColumns(ActionEvent actionEvent) {

@@ -4,6 +4,8 @@ import io.gitlab.swded.system.controller.chart.ChartController;
 import io.gitlab.swded.system.controller.chart.ChartInputController;
 import io.gitlab.swded.system.controller.classification.ClassificationInputController;
 import io.gitlab.swded.system.controller.classification.ClassificationQAInputController;
+import io.gitlab.swded.system.controller.grouping.GroupingInputController;
+import io.gitlab.swded.system.controller.grouping.GroupingQAInputController;
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.Parser;
 import io.gitlab.swded.system.model.processing.Metric;
@@ -189,9 +191,24 @@ public class MainController implements ChartInputController.ChartInputListener, 
         classificationQAInputController.initializeUI(dataRow, header);
     }
 
+
+    public void showGroupingQA(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/groupingQAInput.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("Grouping QA input");
+        stage.setScene(new Scene(loader.load()));
+        stage.show();
+        GroupingQAInputController classificationQAInputController = loader.getController();
+        ObservableList<DataRow> data = tableController.getData();
+        DataRow dataRow = data.get(0);
+        List<String> header = tableController.getHeader();
+        classificationQAInputController.setData(data);
+        classificationQAInputController.initializeUI(dataRow, header);
+    }
+
     @Override
     public void onGroupClassification(int[] classes, int groupsCount, Metric metric) {
-        tableController.addColumn(classes, "GR_" +  metric + "_" + groupsCount);
+        tableController.addColumn(classes, "GR_" + metric + "_" + groupsCount);
     }
 
     public void close(ActionEvent actionEvent) {
@@ -205,4 +222,5 @@ public class MainController implements ChartInputController.ChartInputListener, 
     private Stage getStage() {
         return (Stage) getWindow();
     }
+
 }

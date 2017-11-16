@@ -1,4 +1,4 @@
-package io.gitlab.swded.system.controller;
+package io.gitlab.swded.system.controller.grouping;
 
 import com.sun.javafx.collections.ObservableListWrapper;
 import io.gitlab.swded.system.model.DataRow;
@@ -58,7 +58,10 @@ public class GroupingInputController {
         Classifier classifier = createClassifier();
         Integer groupsCount = numberComboBox.getValue();
         Metric metric = metricComboBox.getValue();
-        int[] classes = classifier.classifyGroups(groupsCount, metric);
+        int[] classes = classifier.classifyGroups(groupsCount, metric).getValue();
+        for (int i = 0; i < classes.length; i++) {
+            classes[i] += 1;
+        }
         listener.onGroupClassification(classes, groupsCount, metric);
         close(actionEvent);
     }
@@ -133,7 +136,7 @@ public class GroupingInputController {
         this.data = data;
     }
 
-    interface GroupingInputListener {
+    public interface GroupingInputListener {
         void onGroupClassification(int[] classes, int groupsCount, Metric metric);
     }
 }
