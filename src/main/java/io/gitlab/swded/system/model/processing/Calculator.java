@@ -1,10 +1,13 @@
 package io.gitlab.swded.system.model.processing;
 
 import io.gitlab.swded.system.model.DataRow;
+import io.gitlab.swded.system.model.Value;
+import javafx.util.Pair;
 import org.ejml.simple.SimpleMatrix;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 class Calculator {
 
@@ -76,7 +79,7 @@ class Calculator {
         SimpleMatrix diffMatrix = new SimpleMatrix(diff);
         SimpleMatrix diffTMatrix = diffMatrix.transpose();
 
-        return diffMatrix.mult(invertedCovarianceMatrix).mult(diffTMatrix).get(0, 0);
+        return diffTMatrix.mult(invertedCovarianceMatrix).mult(diffMatrix).get(0, 0);
     }
 
     private double[][] covarianceMatrix(List<DataRow> data, int[] indexes) {
@@ -111,6 +114,43 @@ class Calculator {
 
     private double mean(List<DataRow> data, int columnIndex) {
         return data.stream().mapToDouble(row -> row.getNumericValue(columnIndex)).sum() / data.size();
+    }
+
+    public List<DataRow> selectInitialCentroids(int groupCount) {
+        List<DataRow> shuffledData = new ArrayList<>(data);
+        Collections.shuffle(shuffledData);
+        return shuffledData.stream().limit(groupCount).collect(Collectors.toList());
+    }
+
+    public int[] associateCentroids(List<DataRow> centroids) {
+        return data.stream().mapToInt(row ->
+                IntStream.range(0, centroids.size())
+                        .mapToObj(index -> new Pair<>(index, calculateDistance(row, centroids.get(index))))
+                        .min(Comparator.comparingDouble(Pair::getValue))
+                        .get()
+                        .getKey()).toArray();
+    }
+
+    public List<DataRow> selectNextCentroids(List<DataRow> centroids, int[] classes) {
+        return IntStream.range(0, classes.length)
+                .mapToObj(index -> new Pair<>(centroids.get(classes[index]), data.get(index)))
+                .collect(Collectors.groupingBy(Pair::getKey))
+                .entrySet().stream()
+                .map(this::createGroupCentroid)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private DataRow createGroupCentroid(Map.Entry<DataRow, List<Pair<DataRow, DataRow>>> group) {
+        int size = group.getValue().size();
+        if (size <= 0) {
+            System.err.println("WARNING: EMPTY GROUP");
+            return null;
+        }
+        DataRow centroid = new DataRow(data.get(0).toString().split(" ")).clear();
+        group.getValue().forEach(pair -> centroid.add(pair.getValue()));
+        centroid.getValues().stream().filter(Value::isNumber).forEach(value -> value.divValue(size));
+        return centroid;
     }
 
 }

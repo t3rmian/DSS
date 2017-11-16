@@ -6,6 +6,7 @@ import io.gitlab.swded.system.controller.classification.ClassificationInputContr
 import io.gitlab.swded.system.controller.classification.ClassificationQAInputController;
 import io.gitlab.swded.system.model.DataRow;
 import io.gitlab.swded.system.model.Parser;
+import io.gitlab.swded.system.model.processing.Metric;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,7 +24,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Optional;
 
-public class MainController implements ChartInputController.ChartInputListener {
+public class MainController implements ChartInputController.ChartInputListener, GroupingInputController.GroupingInputListener {
 
     @FXML
     private MenuBar menuBar;
@@ -171,6 +172,26 @@ public class MainController implements ChartInputController.ChartInputListener {
         List<String> header = tableController.getHeader();
         classificationQAInputController.setData(data);
         classificationQAInputController.initializeUI(dataRow, header);
+    }
+
+    public void showGrouping(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/groupingInput.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("Grouping input");
+        stage.setScene(new Scene(loader.load()));
+        stage.show();
+        GroupingInputController classificationQAInputController = loader.getController();
+        ObservableList<DataRow> data = tableController.getData();
+        DataRow dataRow = data.get(0);
+        List<String> header = tableController.getHeader();
+        classificationQAInputController.setListener(this);
+        classificationQAInputController.setData(data);
+        classificationQAInputController.initializeUI(dataRow, header);
+    }
+
+    @Override
+    public void onGroupClassification(int[] classes, int groupsCount, Metric metric) {
+        tableController.addColumn(classes, "GR_" +  metric + "_" + groupsCount);
     }
 
     public void close(ActionEvent actionEvent) {

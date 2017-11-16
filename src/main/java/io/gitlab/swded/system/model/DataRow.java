@@ -2,6 +2,7 @@ package io.gitlab.swded.system.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class DataRow {
     List<Value> values = new ArrayList<>();
@@ -34,6 +35,17 @@ public class DataRow {
 
     public void addValue(Value value) {
         values.add(value);
+    }
+
+    public DataRow clear() {
+        values.stream().filter(Value::isNumber).forEach(value -> value.setValue(0));
+        return this;
+    }
+
+    public void add(DataRow dataRow) {
+        IntStream.range(0, values.size())
+                .filter(index -> values.get(index).isNumber())
+                .forEach(index -> values.get(index).addValue(dataRow.getNumericValue(index)));
     }
 
     @Override

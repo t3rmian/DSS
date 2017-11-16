@@ -60,7 +60,18 @@ public class ClassificationQAInputController extends ChartInputController {
 
     @Override
     protected boolean validateInput() {
-        return validateSelectedClassColumns();
+        return validateSelectedValueColumns() && validateSelectedClassColumns();
+    }
+
+    private boolean validateSelectedValueColumns() {
+        if (selectedValueColumns.getItems().size() < 1) {
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR, "You must choose at least one value column");
+            errorAlert.setHeaderText(null);
+            errorAlert.setTitle("Invalid columns");
+            errorAlert.show();
+            return false;
+        }
+        return true;
     }
 
     public void close(ActionEvent actionEvent) {

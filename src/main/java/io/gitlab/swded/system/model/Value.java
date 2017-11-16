@@ -67,4 +67,11 @@ public class Value {
         this.setText(String.valueOf(value));
     }
 
+    public void addValue(double numericValue) {
+        setValue(getValue() + numericValue);
+    }
+
+    public void divValue(double divider) {
+        setValue(getValue() / divider);
+    }
 }

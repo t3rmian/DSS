@@ -1,12 +1,12 @@
 package io.gitlab.swded.system.model.processing;
 
 import io.gitlab.swded.system.model.DataRow;
-import javafx.collections.FXCollections;
 import javafx.util.Pair;
 
 import java.util.*;
 import java.util.function.DoubleFunction;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Classifier {
     private int classColumnIndex;
@@ -24,6 +24,35 @@ public class Classifier {
 
     public void setClassColumnIndex(int classColumnIndex) {
         this.classColumnIndex = classColumnIndex;
+    }
+
+    public int[] classifyGroups(int groupCount, Metric metric) {
+        calculator.setMetric(metric);
+        List<DataRow> centroids = calculator.selectInitialCentroids(groupCount);
+        int[] classes = calculator.associateCentroids(centroids);
+        boolean change = true;
+        int iteration = 0;
+        while (change) {
+            System.out.println("Iteration: " + (++iteration));
+            centroids = calculator.selectNextCentroids(centroids, classes);
+            int[] newClasses = calculator.associateCentroids(centroids);
+            change = false;
+            try {
+                for (int i = 0; i < classes.length; i++) {
+                    if (classes[i] != newClasses[i]) {
+                        change = true;
+                        break;
+                    }
+                }
+            } catch (ArrayIndexOutOfBoundsException outEx) {
+                change = true;
+            }
+            classes = newClasses;
+        }
+        for (int i = 0; i < classes.length; i++) {
+            classes[i] += 1;
+        }
+        return classes;
     }
 
     public String classify(DataRow unknownObject, int knn, Metric metric) {

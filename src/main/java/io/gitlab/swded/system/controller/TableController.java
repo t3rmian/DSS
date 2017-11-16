@@ -19,6 +19,7 @@ import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class TableController {
 
@@ -345,4 +346,12 @@ public class TableController {
         data.clear();
         table.refresh();
     }
+
+    public void addColumn(int[] values, String header) {
+        IntStream.range(0, data.size()).forEach(index -> data.get(index).addValue(new Value(values[index])));
+        TableColumn<DataRow, Number> newColumn = createNumericColumn(header, table.getColumns().size());
+        this.header.add(header);
+        table.getColumns().add(newColumn);
+    }
+
 }
