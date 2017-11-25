@@ -1,7 +1,8 @@
 package io.gitlab.swded.system.model.processing;
 
 import io.gitlab.swded.system.model.data.DataRow;
-import io.gitlab.swded.system.model.processing.tree.Tree;
+import io.gitlab.swded.system.model.processing.tree.DataNode;
+import io.gitlab.swded.system.model.processing.tree.DataTree;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -13,6 +14,7 @@ public class MachineLearner {
     private int classColumnIndex;
     private final Calculator calculator;
     private final List<DataRow> data;
+    private final TreeBuilder treeBuilder = new TreeBuilder();
 
     public MachineLearner(List<DataRow> data) {
         this.data = data;
@@ -25,6 +27,10 @@ public class MachineLearner {
 
     public void setClassColumnIndex(int classColumnIndex) {
         this.classColumnIndex = classColumnIndex;
+    }
+
+    public TreeBuilder getTreeBuilder() {
+        return treeBuilder;
     }
 
     public List<Pair<Integer, Double>> groupQA(int groupCount, Metric metric, ClusteringQAType clusteringAssessment) {
@@ -122,16 +128,35 @@ public class MachineLearner {
         return (double) hits / size;
     }
 
-    public Tree buildDecisionTree() {
-        return null;
+    public double classificationQuality(DataTree tree) {
+        List<DataRow> data = new ArrayList<>(this.data);
+        int size = data.size();
+        int hits = 0;
+        for (int i = 0; i < size; i++) {
+            DataRow unknownObject = data.remove(0);
+            DataNode node = tree.getRoot();
+            DataNode prevNode;
+            do {
+                prevNode = node;
+                node = node.getNextDecisionNode(unknownObject);
+            } while (node != null);
+            String determinedClass = prevNode.getPossibleData().get(0).getTextValue(classColumnIndex);
+            if (Objects.equals(determinedClass, unknownObject.getTextValue(classColumnIndex))) {
+                hits++;
+            }
+            data.add(unknownObject);
+        }
+        return (double) hits / size;
     }
 
-    public double classificationQuality(Tree tree) {
-        return 0;
-    }
-
-    public String classify(DataRow unknownObject, Tree tree) {
-        return null;
+    public String classify(DataRow unknownObject, DataTree tree) {
+        DataNode node = tree.getRoot();
+        DataNode prevNode;
+        do {
+            prevNode = node;
+            node = node.getNextDecisionNode(unknownObject);
+        } while (node != null);
+        return prevNode.getMostPossibleClass(classColumnIndex);
     }
 
     private static class PairDoubleFunction implements DoubleFunction<Pair<Integer, Double>> {
@@ -140,6 +165,57 @@ public class MachineLearner {
         @Override
         public Pair<Integer, Double> apply(double value) {
             return new Pair<>(index++, value);
+        }
+    }
+
+    public class TreeBuilder {
+        public DataTree buildDecisionTree() {
+            DataNode root = new DataNode();
+            DataTree tree = new DataTree(root);
+            int[] indexes = calculator.getValueIndexes();
+            List<Integer> valueColumnIndexes = Arrays.stream(indexes, 0, indexes.length).boxed().collect(Collectors.toList());
+            branchRecursively(root, data, valueColumnIndexes, calculator.calculateEntropy(data));
+            return tree;
+        }
+
+        private void branchRecursively(DataNode node, List<DataRow> data, List<Integer> valueIndexes, double previousEntropy) {
+            if (data.isEmpty()) {
+                return;
+            }
+            Map<String, List<DataRow>> dataClasses = data.stream()
+                    .collect(Collectors.groupingBy(row -> row.getTextValue(classColumnIndex)));
+            dataClasses.forEach((key, classifiedData) -> node.setPossibleData(classifiedData));
+            if (dataClasses.size() == 1) {
+                return;
+            }
+            if (valueIndexes.isEmpty()) {
+                System.err.println("Finished building tree but leafs still contain multiple classes");
+                return;
+            }
+
+            Pair<Integer, Double> bestSplit = valueIndexes.stream()
+                    .map(splitIndex -> new Pair<>(splitIndex, calculator.calculateInformationGain(previousEntropy,
+                            calculator.calculateEntropyAfterSplit(data, splitIndex))))
+                    .max(Comparator.comparing(Pair::getValue))
+                    .get();
+            List<List<DataRow>> subData = data.stream()
+                    .map(row -> row.getNumericValue(bestSplit.getKey()))
+                    .collect(Collectors.groupingBy(value -> value))
+                    .keySet().stream()
+                    .map(value -> data.stream()
+                            .filter(row -> value == row.getNumericValue(bestSplit.getKey()))
+                            .collect(Collectors.toList()))
+                    .collect(Collectors.toList());
+            List<Integer> valueSubIndexes = new ArrayList<>(valueIndexes);
+            valueSubIndexes.remove(valueIndexes.indexOf(bestSplit.getKey()));
+
+            node.setSplitIndex(bestSplit.getKey());
+
+            subData.forEach(splitData -> {
+                DataNode subNode = new DataNode();
+                node.add(subNode);
+                branchRecursively(subNode, splitData, valueSubIndexes, bestSplit.getValue());
+            });
         }
     }
 }

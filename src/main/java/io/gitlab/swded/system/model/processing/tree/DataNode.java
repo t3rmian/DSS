@@ -1,60 +1,64 @@
 package io.gitlab.swded.system.model.processing.tree;
 
 import io.gitlab.swded.system.model.data.DataRow;
-import io.gitlab.swded.system.model.data.Value;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public class DataNode extends DefaultMutableTreeNode implements DataRow {
-    private final DataRow dataRow;
+public class DataNode extends DefaultMutableTreeNode {
+    private Integer splitIndex;
+    private List<DataRow> possibleData;
 
-    public DataNode(DataRow dataRow) {
-        this.dataRow = dataRow;
+    public void setSplitIndex(Integer splitIndex) {
+        this.splitIndex = splitIndex;
     }
 
-    @Override
-    public List<Value> getValues() {
-        return dataRow.getValues();
+    public DataNode getNextDecisionNode(DataRow dataRow) {
+        if (isLeaf()) {
+            return null;
+        }
+        List<DataNode> possiblePaths = (List<DataNode>) this.children.stream()
+                .filter(child -> ((DataNode) child).possibleData.stream()
+                        .map(row -> row.getNumericValue(splitIndex))
+                        .collect(Collectors.toList())
+                        .contains(dataRow.getNumericValue(splitIndex)))
+                .collect(Collectors.toList());
+        if (possiblePaths.size() > 1) {
+            System.err.println("Multiple classes after branching by value");
+            return null;
+        } else if (possiblePaths.isEmpty()) {
+            System.err.println("Value not present in dataset");
+            return null;
+        } else {
+            return possiblePaths.get(0);
+        }
     }
 
-    @Override
-    public Value getValue(int i) {
-        return dataRow.getValue(i);
+    public void setPossibleData(List<DataRow> possibleData) {
+        this.possibleData = possibleData;
     }
 
-    @Override
-    public double getNumericValue(int i) {
-        return dataRow.getNumericValue(i);
+    public List<DataRow> getPossibleData() {
+        return possibleData;
     }
 
-    @Override
-    public String getTextValue(int i) {
-        return dataRow.getTextValue(i);
+    public Integer getSplitIndex() {
+        return splitIndex;
     }
 
-    @Override
-    public int size() {
-        return dataRow.size();
-    }
-
-    @Override
-    public void addValue(Value value) {
-        dataRow.addValue(value);
-    }
-
-    @Override
-    public DataRow clear() {
-        return dataRow.clear();
-    }
-
-    @Override
-    public void add(DataRow dataRow) {
-        dataRow.add(dataRow);
-    }
-
-    @Override
-    public String toString() {
-        return dataRow.toString();
+    public String getMostPossibleClass(int classIndex) {
+        Map<String, Long> countedClasses = possibleData.stream().collect(Collectors.groupingBy(row -> row.getTextValue(classIndex), Collectors.counting()));
+        long sum = countedClasses.values().stream().mapToLong(value -> value).sum();
+        long accumulator = 0;
+        double randomValue = Math.random();
+        for (Map.Entry<String, Long> countedClass : countedClasses.entrySet()) {
+            accumulator += countedClass.getValue();
+            if (((double) accumulator / sum) >= randomValue) {
+                return countedClass.getKey();
+            }
+        }
+        throw new RuntimeException("Programmer mistake, should return most probable class");
     }
 }

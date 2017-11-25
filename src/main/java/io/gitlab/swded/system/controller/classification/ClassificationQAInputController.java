@@ -23,7 +23,8 @@ public class ClassificationQAInputController extends ValueClassColumnsInputContr
     }
 
     double calculateClassificationQuality(MachineLearner machineLearner) {
-        return machineLearner.classificationQuality(machineLearner.buildDecisionTree());
+        MachineLearner.TreeBuilder treeBuilder = machineLearner.getTreeBuilder();
+        return machineLearner.classificationQuality(treeBuilder.buildDecisionTree());
     }
 
     MachineLearner createClassifier() {

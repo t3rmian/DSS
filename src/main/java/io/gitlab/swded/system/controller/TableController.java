@@ -262,6 +262,9 @@ public class TableController {
         thresholds[0] = min + divisionRange;
         for (int i = 1; i < thresholds.length; i++) {
             thresholds[i] = thresholds[i - 1] + divisionRange;
+            if (i == thresholds.length - 1) {
+                thresholds[thresholds.length - 1] = Double.MAX_VALUE;
+            }
         }
         if (range == 0) {
             return;

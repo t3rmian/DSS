@@ -14,7 +14,8 @@ class Calculator {
 
     private Metric metric;
     private final List<DataRow> data;
-    private int[] indexes;
+    private int[] valueIndexes;
+    private int classIndex;
 
     public Calculator(List<DataRow> data) {
         this.data = data;
@@ -25,19 +26,23 @@ class Calculator {
     }
 
     public void setColumnIndexes(int[] indexes) {
-        this.indexes = indexes;
+        this.valueIndexes = indexes;
+    }
+
+    public void setClassIndex(int index) {
+        this.classIndex = index;
     }
 
     public double calculateDistance(DataRow v1, DataRow v2) {
         switch (metric) {
             case EUCLIDEAN:
-                return euclideanDistance(v1, v2, indexes);
+                return euclideanDistance(v1, v2, valueIndexes);
             case MANHATTAN:
-                return manhattanDistance(v1, v2, indexes);
+                return manhattanDistance(v1, v2, valueIndexes);
             case INFINITE:
-                return infiniteDistance(v1, v2, indexes);
+                return infiniteDistance(v1, v2, valueIndexes);
             case MAHALANOBIS:
-                return mahalanobisDistance(data, v1, v2, indexes);
+                return mahalanobisDistance(data, v1, v2, valueIndexes);
             default:
                 throw new RuntimeException("metric not set");
         }
@@ -167,7 +172,7 @@ class Calculator {
     }
 
     private double sse(DataRow clusterRow, DataRow centroidRow) {
-        return IntStream.range(0, indexes.length)
+        return IntStream.range(0, valueIndexes.length)
                 .mapToDouble(columnIndex -> {
                     double diff = clusterRow.getNumericValue(columnIndex) - centroidRow.getNumericValue(columnIndex);
                     return diff * diff;
@@ -187,10 +192,47 @@ class Calculator {
     }
 
     private double jaccardSimilarity(DataRow clusterRow, DataRow centroidRow) {
-        return IntStream.range(0, indexes.length)
-                .mapToDouble(columnIndex -> Math.min(clusterRow.getNumericValue(columnIndex), centroidRow.getNumericValue(columnIndex))).sum()
-                /
-                IntStream.range(0, indexes.length)
-                        .mapToDouble(columnIndex -> Math.max(clusterRow.getNumericValue(columnIndex), centroidRow.getNumericValue(columnIndex))).sum();
+        try {
+            return IntStream.range(0, valueIndexes.length)
+                    .mapToDouble(columnIndex -> Math.min(clusterRow.getNumericValue(columnIndex), centroidRow.getNumericValue(columnIndex))).sum()
+                    /
+                    IntStream.range(0, valueIndexes.length)
+                            .mapToDouble(columnIndex -> Math.max(clusterRow.getNumericValue(columnIndex), centroidRow.getNumericValue(columnIndex))).sum();
+        } catch (ArithmeticException ae) {
+            System.err.println("Division by zero in Jaccard Similarity calculation, returning infinity");
+            return Double.POSITIVE_INFINITY;
+        }
+    }
+
+    public Double calculateInformationGain(double entropyBefore, double entropyAfter) {
+        return entropyBefore - entropyAfter;
+    }
+
+    public Double calculateEntropy(List<DataRow> data) {
+        return data.stream()
+                .map(row -> row.getTextValue(classIndex))
+                .collect(Collectors.groupingBy(value -> value, Collectors.counting()))
+                .values().stream()
+                .mapToDouble(sameValues -> calculateSingleEntropy(sameValues.intValue(), data.size()))
+                .sum();
+    }
+
+    public Double calculateEntropyAfterSplit(List<DataRow> data, int splitIndex) {
+        return data.stream()
+                .collect(Collectors.groupingBy(row -> row.getNumericValue(splitIndex)))
+                .keySet().stream()
+                .mapToDouble(value -> calculateEntropy(data.stream()
+                        .filter(row -> value == row.getNumericValue(splitIndex))
+                        .collect(Collectors.toList())))
+                .sum();
+    }
+
+    private Double calculateSingleEntropy(int sameDataSize, int subDataSize) {
+        double probability = (double) sameDataSize / subDataSize;
+        return -probability * Math.log(probability);
+    }
+
+    public int[] getValueIndexes() {
+        return valueIndexes;
     }
 }
