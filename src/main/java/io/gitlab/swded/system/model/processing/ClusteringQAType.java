@@ -1,5 +1,5 @@
 package io.gitlab.swded.system.model.processing;
 
-public enum ClusteringAssessment {
+public enum ClusteringQAType {
     ELBOW, JACCARD
 }

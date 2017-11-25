@@ -1,5 +1,6 @@
 package io.gitlab.swded.system.model;
 
+import io.gitlab.swded.system.model.data.Parser;
 import org.junit.Test;
 
 import java.io.BufferedReader;

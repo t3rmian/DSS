@@ -4,10 +4,12 @@ import io.gitlab.swded.system.controller.chart.ChartController;
 import io.gitlab.swded.system.controller.chart.ChartInputController;
 import io.gitlab.swded.system.controller.classification.ClassificationInputController;
 import io.gitlab.swded.system.controller.classification.ClassificationQAInputController;
+import io.gitlab.swded.system.controller.classification.KNNClassificationInputController;
+import io.gitlab.swded.system.controller.classification.KNNClassificationQAInputController;
 import io.gitlab.swded.system.controller.grouping.GroupingInputController;
 import io.gitlab.swded.system.controller.grouping.GroupingQAInputController;
-import io.gitlab.swded.system.model.DataRow;
-import io.gitlab.swded.system.model.Parser;
+import io.gitlab.swded.system.model.data.DataRow;
+import io.gitlab.swded.system.model.data.Parser;
 import io.gitlab.swded.system.model.processing.Metric;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -148,13 +150,13 @@ public class MainController implements ChartInputController.ChartInputListener, 
         new ChartController().showChart(tableController.getData(), classColumnIndex, valueColumnIndexes, tableController.getHeader());
     }
 
-    public void showClassification(ActionEvent actionEvent) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/classificationInput.fxml"));
+    public void showKNNClassification(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/knnClassificationInput.fxml"));
         Stage stage = new Stage();
-        stage.setTitle("Classification input");
+        stage.setTitle("kNN classification input");
         stage.setScene(new Scene(loader.load()));
         stage.show();
-        ClassificationInputController classificationInputController = loader.getController();
+        KNNClassificationInputController classificationInputController = loader.getController();
         ObservableList<DataRow> data = tableController.getData();
         DataRow dataRow = data.get(0);
         List<String> header = tableController.getHeader();
@@ -162,13 +164,13 @@ public class MainController implements ChartInputController.ChartInputListener, 
         classificationInputController.initializeUI(dataRow, header);
     }
 
-    public void showClassificationQA(ActionEvent actionEvent) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/classificationQAInput.fxml"));
+    public void showKNNClassificationQA(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/knnClassificationQAInput.fxml"));
         Stage stage = new Stage();
-        stage.setTitle("Classification QA input");
+        stage.setTitle("kNN classification QA input");
         stage.setScene(new Scene(loader.load()));
         stage.show();
-        ClassificationQAInputController classificationQAInputController = loader.getController();
+        KNNClassificationQAInputController classificationQAInputController = loader.getController();
         ObservableList<DataRow> data = tableController.getData();
         DataRow dataRow = data.get(0);
         List<String> header = tableController.getHeader();
@@ -223,4 +225,31 @@ public class MainController implements ChartInputController.ChartInputListener, 
         return (Stage) getWindow();
     }
 
+    public void showTreeClassification(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/classificationInput.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("Tree classification input");
+        stage.setScene(new Scene(loader.load()));
+        stage.show();
+        ClassificationInputController classificationInputController = loader.getController();
+        ObservableList<DataRow> data = tableController.getData();
+        DataRow dataRow = data.get(0);
+        List<String> header = tableController.getHeader();
+        classificationInputController.setData(data);
+        classificationInputController.initializeUI(dataRow, header);
+    }
+
+    public void showTreeClassificationQA(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/classificationQAInput.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("Tree classification QA input");
+        stage.setScene(new Scene(loader.load()));
+        stage.show();
+        ClassificationQAInputController classificationInputController = loader.getController();
+        ObservableList<DataRow> data = tableController.getData();
+        DataRow dataRow = data.get(0);
+        List<String> header = tableController.getHeader();
+        classificationInputController.setData(data);
+        classificationInputController.initializeUI(dataRow, header);
+    }
 }

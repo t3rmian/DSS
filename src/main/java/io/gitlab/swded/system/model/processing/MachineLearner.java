@@ -1,6 +1,6 @@
 package io.gitlab.swded.system.model.processing;
 
-import io.gitlab.swded.system.model.DataRow;
+import io.gitlab.swded.system.model.data.DataRow;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -8,12 +8,12 @@ import java.util.function.DoubleFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Classifier {
+public class MachineLearner {
     private int classColumnIndex;
     private final Calculator calculator;
     private final List<DataRow> data;
 
-    public Classifier(List<DataRow> data) {
+    public MachineLearner(List<DataRow> data) {
         this.data = data;
         calculator = new Calculator(data);
     }
@@ -26,12 +26,12 @@ public class Classifier {
         this.classColumnIndex = classColumnIndex;
     }
 
-    public List<Pair<Integer, Double>> classifyGroupsQA(int groupCount, Metric metric, ClusteringAssessment clusteringAssessment) {
+    public List<Pair<Integer, Double>> groupQA(int groupCount, Metric metric, ClusteringQAType clusteringAssessment) {
         switch (clusteringAssessment) {
             case ELBOW:
                 return IntStream.rangeClosed(1, groupCount)
                         .parallel()
-                        .mapToObj(iterationGroupCount -> new Pair<>(iterationGroupCount, calculator.clustersSSE(classifyGroups(iterationGroupCount, metric))))
+                        .mapToObj(iterationGroupCount -> new Pair<>(iterationGroupCount, calculator.clustersSSE(group(iterationGroupCount, metric))))
                         .collect(Collectors.toList())
                         .stream().sorted(Comparator.comparing(Pair::getKey))
                         .collect(Collectors.toList())
@@ -39,7 +39,7 @@ public class Classifier {
             case JACCARD:
                 return IntStream.rangeClosed(1, groupCount)
                         .parallel()
-                        .mapToObj(iterationGroupCount -> new Pair<>(iterationGroupCount, calculator.clustersJaccard(classifyGroups(iterationGroupCount, metric))))
+                        .mapToObj(iterationGroupCount -> new Pair<>(iterationGroupCount, calculator.clustersJaccard(group(iterationGroupCount, metric))))
                         .collect(Collectors.toList())
                         .stream().sorted(Comparator.comparing(Pair::getKey))
                         .collect(Collectors.toList());
@@ -48,7 +48,7 @@ public class Classifier {
         }
     }
 
-    public Pair<List<DataRow>, int[]> classifyGroups(int groupCount, Metric metric) {
+    public Pair<List<DataRow>, int[]> group(int groupCount, Metric metric) {
         calculator.setMetric(metric);
         List<DataRow> centroids = calculator.selectInitialCentroids(groupCount);
         int[] classes = calculator.associateCentroids(centroids);
@@ -119,6 +119,18 @@ public class Classifier {
             data.add(unknownObject);
         }
         return (double) hits / size;
+    }
+
+    public Tree buildDecisionTree() {
+        return null;
+    }
+
+    public double classificationQuality(Tree tree) {
+        return 0;
+    }
+
+    public String classify(DataRow unknownObject, Tree tree) {
+        return null;
     }
 
     private static class PairDoubleFunction implements DoubleFunction<Pair<Integer, Double>> {

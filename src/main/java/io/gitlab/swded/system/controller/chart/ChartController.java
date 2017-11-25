@@ -1,6 +1,6 @@
 package io.gitlab.swded.system.controller.chart;
 
-import io.gitlab.swded.system.model.DataRow;
+import io.gitlab.swded.system.model.data.DataRow;
 import io.gitlab.swded.system.model.XYZSeries;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;

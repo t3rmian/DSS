@@ -1,7 +1,7 @@
 package io.gitlab.swded.system.model.processing;
 
-import io.gitlab.swded.system.model.DataRow;
-import io.gitlab.swded.system.model.Value;
+import io.gitlab.swded.system.model.data.DataRow;
+import io.gitlab.swded.system.model.data.Value;
 import javafx.util.Pair;
 import org.ejml.simple.SimpleMatrix;
 

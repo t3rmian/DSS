@@ -1,9 +1,9 @@
 package io.gitlab.swded.system.controller;
 
 import io.gitlab.swded.system.formatter.DoubleTextFormatter;
-import io.gitlab.swded.system.model.DataRow;
-import io.gitlab.swded.system.model.Parser;
-import io.gitlab.swded.system.model.Value;
+import io.gitlab.swded.system.model.data.DataRow;
+import io.gitlab.swded.system.model.data.Parser;
+import io.gitlab.swded.system.model.data.Value;
 import io.gitlab.swded.system.view.RangeDialog;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;

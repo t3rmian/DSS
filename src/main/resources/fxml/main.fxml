@@ -22,8 +22,12 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Data">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Classification" onAction="#showClassification"/>
-                        <MenuItem mnemonicParsing="false" text="Classification QA" onAction="#showClassificationQA"/>
+                        <Menu mnemonicParsing="false" text="Classification">
+                            <MenuItem mnemonicParsing="false" text="kNN" onAction="#showKNNClassification"/>
+                            <MenuItem mnemonicParsing="false" text="kNN QA" onAction="#showKNNClassificationQA"/>
+                            <MenuItem mnemonicParsing="false" text="Decision tree" onAction="#showTreeClassification"/>
+                            <MenuItem mnemonicParsing="false" text="Decision tree QA" onAction="#showTreeClassificationQA"/>
+                        </Menu>
                         <MenuItem mnemonicParsing="false" text="Grouping" onAction="#showGrouping"/>
                         <MenuItem mnemonicParsing="false" text="Grouping QA" onAction="#showGroupingQA"/>
                     </items>

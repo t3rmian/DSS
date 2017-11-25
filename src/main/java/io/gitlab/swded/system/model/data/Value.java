@@ -1,4 +1,4 @@
-package io.gitlab.swded.system.model;
+package io.gitlab.swded.system.model.data;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;

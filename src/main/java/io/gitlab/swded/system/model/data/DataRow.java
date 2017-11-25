@@ -1,4 +1,4 @@
-package io.gitlab.swded.system.model;
+package io.gitlab.swded.system.model.data;
 
 import java.util.ArrayList;
 import java.util.List;
