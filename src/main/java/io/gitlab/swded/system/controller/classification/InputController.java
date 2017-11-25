@@ -1,28 +1,24 @@
 package io.gitlab.swded.system.controller.classification;
 
 import io.gitlab.swded.system.model.data.DataRow;
-import javafx.collections.ObservableList;
+import io.gitlab.swded.system.model.data.DefaultDataRow;
 import javafx.scene.control.Alert;
-import javafx.scene.control.MultipleSelectionModel;
 
 import java.text.DecimalFormat;
 
-public class InputController {
+class InputController {
 
     private static final DecimalFormat percentageFormat = new DecimalFormat("##.##");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.####");
     private DataRow defaultDataRow;
-
-    InputController() {
-    }
 
     InputController(DataRow defaultDataRow) {
         this.defaultDataRow = defaultDataRow;
     }
 
     DataRow parseInputRow(String input, int[] valueColumnIndexes, int classColumnIndex) {
-        DataRow inputObject = new DataRow(input.split(" "));
-        DataRow unknownObject = new DataRow(defaultDataRow.toString().split(" "));
+        DataRow inputObject = new DefaultDataRow(input.split(" "));
+        DataRow unknownObject = new DefaultDataRow(defaultDataRow.toString().split(" "));
         unknownObject.getValues().forEach(value -> {
             if (value.isNumber()) {
                 value.setValue(-Double.MAX_VALUE);

@@ -1,6 +1,7 @@
 package io.gitlab.swded.system.model.processing;
 
 import io.gitlab.swded.system.model.data.DataRow;
+import io.gitlab.swded.system.model.processing.tree.Tree;
 import javafx.util.Pair;
 
 import java.util.*;

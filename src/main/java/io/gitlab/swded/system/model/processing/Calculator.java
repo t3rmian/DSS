@@ -1,6 +1,7 @@
 package io.gitlab.swded.system.model.processing;
 
 import io.gitlab.swded.system.model.data.DataRow;
+import io.gitlab.swded.system.model.data.DefaultDataRow;
 import io.gitlab.swded.system.model.data.Value;
 import javafx.util.Pair;
 import org.ejml.simple.SimpleMatrix;
@@ -147,7 +148,7 @@ class Calculator {
             System.err.println("WARNING: EMPTY GROUP");
             return null;
         }
-        DataRow centroid = new DataRow(data.get(0).toString().split(" ")).clear();
+        DataRow centroid = new DefaultDataRow(data.get(0).toString().split(" ")).clear();
         group.getValue().forEach(pair -> centroid.add(pair.getValue()));
         centroid.getValues().stream().filter(Value::isNumber).forEach(value -> value.divValue(size));
         return centroid;

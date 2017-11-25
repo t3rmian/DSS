@@ -44,7 +44,7 @@ public class Parser {
                 header = line.split(SPLIT_CHARACTER);
             } else {
                 String[] values = line.split(SPLIT_CHARACTER);
-                this.rows.add(new DataRow(values));
+                this.rows.add(new DefaultDataRow(values));
             }
         }
     }
