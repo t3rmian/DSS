@@ -3,6 +3,7 @@ package io.gitlab.swded.system.model.processing.tree;
 import io.gitlab.swded.system.model.data.DataRow;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,16 +50,10 @@ public class DataNode extends DefaultMutableTreeNode {
     }
 
     public String getMostPossibleClass(int classIndex) {
-        Map<String, Long> countedClasses = possibleData.stream().collect(Collectors.groupingBy(row -> row.getTextValue(classIndex), Collectors.counting()));
-        long sum = countedClasses.values().stream().mapToLong(value -> value).sum();
-        long accumulator = 0;
-        double randomValue = Math.random();
-        for (Map.Entry<String, Long> countedClass : countedClasses.entrySet()) {
-            accumulator += countedClass.getValue();
-            if (((double) accumulator / sum) >= randomValue) {
-                return countedClass.getKey();
-            }
-        }
-        throw new RuntimeException("Programmer mistake, should return most probable class");
+        return possibleData.stream()
+                .collect(Collectors.groupingBy(row -> row.getTextValue(classIndex), Collectors.counting()))
+                .entrySet().stream()
+                .max(Comparator.comparing(Map.Entry::getValue))
+                .get().getKey();
     }
 }
