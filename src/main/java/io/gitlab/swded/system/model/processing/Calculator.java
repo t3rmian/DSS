@@ -204,11 +204,11 @@ class Calculator {
         }
     }
 
-    public Double calculateInformationGain(double entropyBefore, double entropyAfter) {
+    public double calculateInformationGain(double entropyBefore, double entropyAfter) {
         return entropyBefore - entropyAfter;
     }
 
-    public Double calculateEntropy(List<DataRow> data) {
+    public double calculateEntropy(List<DataRow> data) {
         return data.stream()
                 .map(row -> row.getTextValue(classIndex))
                 .collect(Collectors.groupingBy(value -> value, Collectors.counting()))
@@ -217,7 +217,7 @@ class Calculator {
                 .sum();
     }
 
-    public Double calculateEntropyAfterSplit(List<DataRow> data, int splitIndex) {
+    public double calculateEntropyAfterSplit(List<DataRow> data, int splitIndex) {
         return data.stream()
                 .collect(Collectors.groupingBy(row -> row.getNumericValue(splitIndex)))
                 .keySet().stream()
@@ -227,9 +227,13 @@ class Calculator {
                 .sum();
     }
 
-    private Double calculateSingleEntropy(int sameDataSize, int subDataSize) {
+    private double calculateSingleEntropy(int sameDataSize, int subDataSize) {
         double probability = (double) sameDataSize / subDataSize;
-        return -probability * Math.log(probability);
+        return -probability * log2(probability);
+    }
+
+    double log2(double n) {
+        return Math.log(n) / Math.log(2);
     }
 
     public int[] getValueIndexes() {
