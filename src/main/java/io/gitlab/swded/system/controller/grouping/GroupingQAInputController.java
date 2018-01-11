@@ -1,5 +1,6 @@
 package io.gitlab.swded.system.controller.grouping;
 
+import io.gitlab.swded.system.Main;
 import io.gitlab.swded.system.controller.chart.ChartController;
 import io.gitlab.swded.system.model.data.DataRow;
 import io.gitlab.swded.system.model.processing.ClusteringQAType;
@@ -13,6 +14,7 @@ import javafx.util.Pair;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class GroupingQAInputController extends GroupingInputController {
@@ -28,11 +30,13 @@ public class GroupingQAInputController extends GroupingInputController {
         Integer groupsCount = numberComboBox.getValue();
         ClusteringQAType clusteringAssessment = clusteringComboBox.getValue();
         Metric metric = metricComboBox.getValue();
-        List<Pair<Integer, Double>> pairs = classifier.groupQA(groupsCount, metric, clusteringAssessment);
-        new ChartController().showChart(
-                pairs.stream().map(Pair::getKey).collect(Collectors.toList()),
-                pairs.stream().mapToDouble(Pair::getValue).toArray(), Arrays.asList(metric + " " + clusteringAssessment + " similarity QA", "k count (groups)", "Similarity value"));
-
+        Runnable task = () -> {
+            List<Pair<Integer, Double>> pairs = classifier.groupQA(groupsCount, metric, clusteringAssessment);
+            new ChartController().showChart(
+                    pairs.stream().map(Pair::getKey).collect(Collectors.toList()),
+                    pairs.stream().mapToDouble(Pair::getValue).toArray(), Arrays.asList(metric + " " + clusteringAssessment + " similarity QA", "k count (groups)", "Similarity value"));
+        };
+        Main.executor.submit(task);
     }
 
     public void initializeUI(DataRow defaultDataRow, List<String> header) {

@@ -41,8 +41,7 @@ public class MachineLearner {
                         .mapToObj(iterationGroupCount -> new Pair<>(iterationGroupCount, calculator.clustersSSE(group(iterationGroupCount, metric))))
                         .collect(Collectors.toList())
                         .stream().sorted(Comparator.comparing(Pair::getKey))
-                        .collect(Collectors.toList())
-                        ;
+                        .collect(Collectors.toList());
             case JACCARD:
                 return IntStream.rangeClosed(1, groupCount)
                         .parallel()

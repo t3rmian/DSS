@@ -2,13 +2,17 @@ package io.gitlab.swded.system;
 
 import io.gitlab.swded.system.controller.MainController;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class Main extends Application {
+
+    public static ExecutorService executor = Executors.newFixedThreadPool(10);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
