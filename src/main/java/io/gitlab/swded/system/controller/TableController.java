@@ -55,7 +55,7 @@ public class TableController {
     }
 
     private TableColumn<DataRow, Number> createNumericColumn(String header, int columnIndex) {
-        TableColumn<DataRow, Number> valueColumn = new TableColumn<>(header);
+        TableColumn<DataRow, Number> valueColumn = new TableColumn<>();
         Label columnHeader = new Label(header);
         valueColumn.setGraphic(columnHeader);
         valueColumn.setSortable(false);

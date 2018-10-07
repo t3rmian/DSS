@@ -115,8 +115,6 @@ public class MainController implements ChartInputController.ChartInputListener, 
     public void showAbout(ActionEvent actionEvent) {
         Alert infoAlert = new Alert(Alert.AlertType.INFORMATION,
                 "Project and implementation of decision support system\n" +
-                        "Systemy Wspomagania Decyzji / Eksploracja Danych\n" +
-                        "Group: PS2\n" +
                         "Authors: Maciej Borowik, Damian Terlecki\n" +
                         "\nTechnologies and components used:\nJavaFX, Maven, JFreeChart (2d charts), JMathPlot (3d charts), ejm SimpleMatrix");
         infoAlert.setTitle("About");

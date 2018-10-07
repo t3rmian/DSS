@@ -18,7 +18,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("fxml/main.fxml"));
         Parent root = fxmlLoader.load();
-        primaryStage.setTitle("SWD System");
+        primaryStage.setTitle("DSS System");
         primaryStage.setScene(new Scene(root, 800, 600));
         primaryStage.centerOnScreen();
         primaryStage.setOnHidden(event -> System.exit(0));

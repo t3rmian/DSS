@@ -16,12 +16,16 @@ public class DataNode extends DefaultMutableTreeNode {
         this.splitIndex = splitIndex;
     }
 
+    public List<DataNode> getChildren() {
+        return (List<DataNode>) (Object) this.children;
+    }
+
     public DataNode getNextDecisionNode(DataRow dataRow) {
         if (isLeaf()) {
             return null;
         }
-        List<DataNode> possiblePaths = (List<DataNode>) this.children.stream()
-                .filter(child -> ((DataNode) child).possibleData.stream()
+        List<DataNode> possiblePaths = getChildren().stream()
+                .filter(child -> child.possibleData.stream()
                         .map(row -> row.getNumericValue(splitIndex))
                         .collect(Collectors.toList())
                         .contains(dataRow.getNumericValue(splitIndex)))

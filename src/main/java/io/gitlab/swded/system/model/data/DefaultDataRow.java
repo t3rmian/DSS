@@ -1,7 +1,5 @@
 package io.gitlab.swded.system.model.data;
 
-import com.sun.istack.internal.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -9,7 +7,7 @@ import java.util.stream.IntStream;
 public class DefaultDataRow implements DataRow {
     private List<Value> values = new ArrayList<>();
 
-    public DefaultDataRow(@NotNull String[] values) {
+    public DefaultDataRow(String[] values) {
         for (String value : values) {
             this.values.add(new Value(value));
         }
